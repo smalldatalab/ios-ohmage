@@ -32,11 +32,11 @@
                                  appDSUClientID:kOhmageDSUClientID
                              appDSUClientSecret:kOhmageDSUClientSecret];
     
-#ifdef OMHDEBUG
-    [OMHClient setDSUBaseURL:@"https://lifestreams.smalldata.io/dsu"];
-#else
-    [OMHClient setDSUBaseURL:[OMHClient defaultDSUBaseURL]];
-#endif
+//#ifdef OMHDEBUG
+//    [OMHClient setDSUBaseURL:@"https://lifestreams.smalldata.io/dsu"];
+//#else
+//    [OMHClient setDSUBaseURL:[OMHClient defaultDSUBaseURL]];
+//#endif
     
     if (![OMHClient sharedClient].isSignedIn) {
         self.window.rootViewController = self.loginViewController;

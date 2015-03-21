@@ -73,9 +73,11 @@ sourceApplication:(NSString *)sourceApplication
 @end
 
 
-@protocol OMHSignInDelegate
+@protocol OMHSignInDelegate<NSObject>
 
 - (void)OMHClient:(OMHClient *)client signInFinishedWithError:(NSError *)error;
+- (void)OMHClientSignInCancelled:(OMHClient *)client;
+
 
 // we need these for presenting the google+ sign in web view
 - (void)presentViewController:(UIViewController *)viewControllerToPresent animated:(BOOL)flag completion:(void (^)(void))completion;

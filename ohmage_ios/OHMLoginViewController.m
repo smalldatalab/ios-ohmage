@@ -119,4 +119,12 @@
     }
 }
 
+- (void)OMHClientSignInCancelled:(OMHClient *)client
+{
+    [self.activityIndicator stopAnimating];
+    self.signInButton.userInteractionEnabled = YES;
+    self.signInButton.alpha = 1.0;
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
+
 @end

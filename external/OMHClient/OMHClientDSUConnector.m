@@ -380,7 +380,7 @@ static GPPSignIn *_gppSignIn = nil;
 - (AFHTTPSessionManager *)backgroundSessionManager
 {
     if (_backgroundSessionManager == nil) {
-        NSURLSessionConfiguration *config = [NSURLSessionConfiguration backgroundSessionConfigurationWithIdentifier:@"OMHBackgroundSessionConfiguration"];
+        NSURLSessionConfiguration *config = [NSURLSessionConfiguration backgroundSessionConfiguration:@"OMHBackgroundSessionConfiguration"];
         _backgroundSessionManager = [[AFHTTPSessionManager alloc] initWithBaseURL:self.baseURL sessionConfiguration:config];
         _backgroundSessionManager.requestSerializer = [AFJSONRequestSerializer serializer];
     }
@@ -853,6 +853,11 @@ static GPPSignIn *_gppSignIn = nil;
     UIViewController *vc = [[UIViewController alloc] init];
     vc.view = webview;
     vc.title = @"Sign In";
+    UIBarButtonItem *cancelButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
+                                                                                  target:self
+                                                                                  action:@selector(signInCancelButtonPressed)];
+    vc.navigationItem.leftBarButtonItem = cancelButton;
+    
     UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:vc];
     [self.signInDelegate presentViewController:nav animated:YES completion:nil];
 }
@@ -887,6 +892,11 @@ static GPPSignIn *_gppSignIn = nil;
             [self.signInDelegate OMHClient:self signInFinishedWithError:error];
         }];
     }
+}
+
+- (void)signInCancelButtonPressed
+{
+    [self.signInDelegate OMHClientSignInCancelled:self];
 }
 
 #pragma mark - Layout Helpers
