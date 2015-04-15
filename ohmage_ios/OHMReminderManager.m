@@ -121,9 +121,7 @@
         fireDate = [reminder fireDateForDate:fireDate];
         if (fireDate) {
             UILocalNotification *notification = [self notificationForReminder:reminder fireDate:fireDate];
-            if (!reminder.usesTimeRangeValue) {
-                notification.repeatInterval = NSWeekCalendarUnit;
-            }
+            notification.repeatInterval = NSWeekCalendarUnit;
             [[UIApplication sharedApplication] scheduleLocalNotification:notification];
         }
     }
