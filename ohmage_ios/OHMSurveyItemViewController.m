@@ -69,8 +69,6 @@ UIImagePickerControllerDelegate, OHMAudioRecorderDelegate>
 
 - (void)loadView
 {
-    //TODO: remove
-    self.item.max = nil;
     [self basicSetup];
     
     if ([self itemNeedsTextField]) {

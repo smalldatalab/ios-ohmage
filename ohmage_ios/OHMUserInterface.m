@@ -33,6 +33,9 @@
         case UITableViewCellAccessoryDetailButton:
             return 47.0;
             break;
+        case UITableViewCellAccessoryCheckmark:
+            return 14.0;
+            break;
         default:
             return 0.0;
             break;
