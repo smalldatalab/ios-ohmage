@@ -20,6 +20,7 @@
 #import <MobileCoreServices/MobileCoreServices.h>
 
 @interface OHMSurveyItemViewController () <UITextFieldDelegate,
+UIPickerViewDelegate, UIPickerViewDataSource,
 UITableViewDataSource, UITableViewDelegate, UINavigationControllerDelegate,
 UIImagePickerControllerDelegate, OHMAudioRecorderDelegate>
 
@@ -33,7 +34,8 @@ UIImagePickerControllerDelegate, OHMAudioRecorderDelegate>
 @property (nonatomic, strong) UIView *validationMessageView;
 @property (nonatomic) NSInteger selectedCount;
 
-@property (nonatomic, strong) UISegmentedControl *numberPlusMinusControl;
+//@property (nonatomic, strong) UISegmentedControl *numberPlusMinusControl;
+@property (nonatomic, strong) UIPickerView *numberPicker;
 @property (nonatomic, strong) UIImageView *imageView;
 @property (nonatomic, strong) UIImagePickerController *imagePicker;
 @property (nonatomic, strong) UIImagePickerController *videoPicker;
@@ -67,10 +69,16 @@ UIImagePickerControllerDelegate, OHMAudioRecorderDelegate>
 
 - (void)loadView
 {
+    //TODO: remove
+    self.item.max = nil;
     [self basicSetup];
     
     if ([self itemNeedsTextField]) {
         [self setupTextField];
+    }
+    
+    if ([self itemNeedsNumberPicker]) {
+        [self setupNumberPicker];
     }
     
     if ([self itemNeedsChoiceTable]) {
@@ -106,6 +114,7 @@ UIImagePickerControllerDelegate, OHMAudioRecorderDelegate>
     self.navigationItem.title = [NSString stringWithFormat:@"%ld of %ld", self.itemIndex + 1, (unsigned long)[self.surveyResponse.survey.surveyItems count]];
     
     self.textLabel.text = self.item.text;
+    
     
     UIBarButtonItem *cancelButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(cancelSurveyButtonPressed:)];
     self.navigationItem.leftBarButtonItem = cancelButton;
@@ -161,6 +170,13 @@ UIImagePickerControllerDelegate, OHMAudioRecorderDelegate>
             self.nextButton.enabled = [self validateChoices];
             break;
         case OHMSurveyItemTypeNumberPrompt:
+            if (self.numberPicker != nil) {
+                self.nextButton.enabled = self.promptResponse.numberValue != nil;
+            }
+            else {
+                self.nextButton.enabled = [self validateTextField];
+            }
+            break;
         case OHMSurveyItemTypeTextPrompt:
             self.nextButton.enabled = [self validateTextField];
             break;
@@ -175,11 +191,18 @@ UIImagePickerControllerDelegate, OHMAudioRecorderDelegate>
 {
     switch (self.item.itemTypeValue) {
         case OHMSurveyItemTypeNumberPrompt:
+            return (self.item.min == nil) || (self.item.max == nil);
         case OHMSurveyItemTypeTextPrompt:
             return YES;
         default:
             return NO;
     }
+}
+
+- (BOOL)itemNeedsNumberPicker
+{
+    return (self.item.itemTypeValue == OHMSurveyItemTypeNumberPrompt
+            && self.item.min != nil && self.item.max != nil);
 }
 
 - (BOOL)itemNeedsChoiceTable
@@ -287,13 +310,13 @@ UIImagePickerControllerDelegate, OHMAudioRecorderDelegate>
         textField.enablesReturnKeyAutomatically = YES;
         textField.returnKeyType = UIReturnKeyDone;
         
-        UISegmentedControl *plusMinusControl = [[UISegmentedControl alloc] initWithItems:@[@"-", @"+"]];
-        plusMinusControl.momentary = YES;
-        [plusMinusControl addTarget:self action:@selector(numberPromptSegmentedControlPressed:) forControlEvents:UIControlEventValueChanged];
-        [self.view addSubview:plusMinusControl];
-        [self.view constrainChildToDefaultHorizontalInsets:plusMinusControl];
-        [plusMinusControl positionBelowElementWithDefaultMargin:textField];
-        self.numberPlusMinusControl = plusMinusControl;
+//        UISegmentedControl *plusMinusControl = [[UISegmentedControl alloc] initWithItems:@[@"-", @"+"]];
+//        plusMinusControl.momentary = YES;
+//        [plusMinusControl addTarget:self action:@selector(numberPromptSegmentedControlPressed:) forControlEvents:UIControlEventValueChanged];
+//        [self.view addSubview:plusMinusControl];
+//        [self.view constrainChildToDefaultHorizontalInsets:plusMinusControl];
+//        [plusMinusControl positionBelowElementWithDefaultMargin:textField];
+//        self.numberPlusMinusControl = plusMinusControl;
     }
     
     if (self.promptResponse.numberValue != nil) {
@@ -322,13 +345,28 @@ UIImagePickerControllerDelegate, OHMAudioRecorderDelegate>
     return @"Enter something";
 }
 
+- (void)setupNumberPicker
+{
+    UIPickerView *pickerView = [[UIPickerView alloc] init];
+    [self.view addSubview:pickerView];
+    [pickerView positionBelowElementWithDefaultMargin:self.textLabel];
+    [self.view constrainChildToDefaultHorizontalInsets:pickerView];
+    pickerView.dataSource = self;
+    pickerView.delegate = self;
+    self.numberPicker = pickerView;
+    
+    if (self.item.defaultNumberResponse != nil) {
+        NSInteger row = [self rowForValue:[self.item.defaultNumberResponse integerValue]];
+        [pickerView selectRow:row inComponent:0 animated:NO];
+        [self pickerView:pickerView didSelectRow:row inComponent:0];
+    }
+}
+
 - (void)setupChoiceTable
 {
     UITableView *choiceTable = [[UITableView alloc] init];
     choiceTable.delegate = self;
     choiceTable.dataSource = self;
-//    [choiceTable registerClass:[UITableViewCell class]
-//           forCellReuseIdentifier:@"UITableViewCell"];
     [self.view addSubview:choiceTable];
     [self.view constrainChildToDefaultHorizontalInsets:choiceTable];
     [choiceTable positionBelowElementWithDefaultMargin:self.textLabel];
@@ -500,20 +538,30 @@ UIImagePickerControllerDelegate, OHMAudioRecorderDelegate>
 
 #pragma mark - Number Prompt
 
-- (IBAction)numberPromptSegmentedControlPressed:(id)sender {
-    double value = [self.textField.text doubleValue];
-    if (value == 0 && self.item.minValue > 0) {
-        value = self.item.minValue;
-    }
-    else {
-        value += (self.numberPlusMinusControl.selectedSegmentIndex * 2) - 1;
-    }
-    if ([self validateNumberValue:value]) {
-        self.textField.text = [NSString stringWithFormat:@"%g", value];
-        self.nextButton.enabled = YES;
-        [self setResponseValueFromTextField];
-    }
+- (NSInteger)valueForRow:(NSInteger)row
+{
+    return [self.item.min integerValue] + row - 1;
 }
+
+- (NSInteger)rowForValue:(NSInteger)value
+{
+    return value - [self.item.min integerValue] + 1;
+}
+
+//- (void)numberPromptSegmentedControlPressed:(id)sender {
+//    double value = [self.textField.text doubleValue];
+//    if (value == 0 && self.item.minValue > 0) {
+//        value = self.item.minValue;
+//    }
+//    else {
+//        value += (self.numberPlusMinusControl.selectedSegmentIndex * 2) - 1;
+//    }
+//    if ([self validateNumberValue:value]) {
+//        self.textField.text = [NSString stringWithFormat:@"%g", value];
+//        self.nextButton.enabled = YES;
+//        [self setResponseValueFromTextField];
+//    }
+//}
 
 - (BOOL)validateNumberValue:(double)value
 {
@@ -529,6 +577,37 @@ UIImagePickerControllerDelegate, OHMAudioRecorderDelegate>
     else {
         return YES;
     }
+}
+
+- (NSInteger)numberOfComponentsInPickerView:(UIPickerView *)pickerView
+{
+    return 1;
+}
+
+- (NSInteger)pickerView:(UIPickerView *)pickerView numberOfRowsInComponent:(NSInteger)component
+{
+    NSLog(@"number of rows in component: %d, min: %f, max: %f", [self.item.max integerValue] - [self.item.min integerValue], self.item.minValue, self.item.maxValue);
+    return [self.item.max integerValue] - [self.item.min integerValue] + 2; // +1 for inclusive range, +1 for "select" row
+}
+
+- (NSString *)pickerView:(UIPickerView *)pickerView titleForRow:(NSInteger)row forComponent:(NSInteger)component
+{
+    if (row == 0) return @"Select";
+    else {
+        NSInteger value = [self valueForRow:row];
+        return [NSString stringWithFormat:@"%d", (int)value];
+    }
+}
+
+- (void)pickerView:(UIPickerView *)pickerView didSelectRow:(NSInteger)row inComponent:(NSInteger)component
+{
+    if (row == 0) {
+        self.promptResponse.numberValue = nil;
+    }
+    else {
+        self.promptResponse.numberValueValue = row + self.item.minValue - 1;
+    }
+    [self updateNextButtonEnabledState];
 }
 
 #pragma mark - Choice Table
@@ -683,7 +762,8 @@ UIImagePickerControllerDelegate, OHMAudioRecorderDelegate>
         message = [message stringByAppendingString:@" characters long"];
     }
     
-    UIView *presenter = self.numberPlusMinusControl ? self.numberPlusMinusControl : self.textField;
+//    UIView *presenter = self.numberPlusMinusControl ? self.numberPlusMinusControl : self.textField;
+    UIView *presenter = self.textField;
     CGRect messageFrame = CGRectInset(presenter.frame, kUIViewSmallTextMargin, kUIViewSmallTextMargin);
     UIView *messageView = [OHMUserInterface fixedSizeFramedLabelWithText:message
                                                                     size:messageFrame.size
