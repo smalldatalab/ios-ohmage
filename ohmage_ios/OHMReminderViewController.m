@@ -141,6 +141,7 @@ typedef NS_ENUM(NSUInteger, RowIndex) {
 
 - (void)cancelButtonPressed:(id)sender
 {
+    [[OHMReminderManager sharedReminderManager] unscheduleNotificationsForReminder:self.reminder];
     [[OHMModel sharedModel] deleteObject:self.reminder];
     [[OHMModel sharedModel] saveModelState];
     

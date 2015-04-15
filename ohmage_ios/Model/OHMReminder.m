@@ -88,6 +88,26 @@
     return days;
 }
 
+- (BOOL)repeatsDaily
+{
+    return self.weekdaysMaskValue == OHMRepeatDayEveryday;
+}
+
+- (NSDate *)fireDateForDate:(NSDate *)date
+{
+    NSInteger weekday = [date weekdayComponent];
+    OHMRepeatDay repeatDay = [OHMReminder repeatDayForCalendarUnit:weekday];
+    if (![self repeatDayIsOn:repeatDay]) return nil;
+    
+    if (self.usesTimeRangeValue) {
+        NSDate *randomTime = [NSDate randomTimeTodayBetweenStartTime:self.startTime endTime:self.endTime];
+        return [date dateWithTimeFromDate:randomTime];
+    }
+    else {
+        return [date dateWithTimeFromDate:self.specificTime];
+    }
+}
+
 - (void)toggleRepeatForDay:(OHMRepeatDay)repeatDay
 {
     self.weekdaysMaskValue ^= repeatDay;

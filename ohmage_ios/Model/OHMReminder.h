@@ -22,6 +22,8 @@ typedef NS_ENUM(NSUInteger, OHMRepeatDay) {
 - (NSString *)labelText;
 - (NSString *)detailLabelText;
 - (NSString *)repeatLabelText;
+- (BOOL)repeatsDaily;
+- (NSDate *)fireDateForDate:(NSDate *)date;
 - (void)toggleRepeatForDay:(OHMRepeatDay)repeatDay;
 - (BOOL)repeatDayIsOn:(OHMRepeatDay)repeatDay;
 - (void)toggleAlwaysShow;

@@ -74,13 +74,24 @@
     }
 }
 
-- (void)scheduleNotificationForReminder:(OHMReminder *)reminder
+- (UILocalNotification *)notificationForReminder:(OHMReminder *)reminder fireDate:(NSDate *)fireDate
 {
-    NSLog( @"calling: %s", __PRETTY_FUNCTION__ );
     UILocalNotification *notification = [[UILocalNotification alloc] init];
     NSString *alertBody = [NSString stringWithFormat:@"Reminder: Take survey '%@'", reminder.survey.surveyName];
     NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
     userInfo.reminderID = reminder.uuid;
+    
+    notification.alertBody = alertBody;
+    notification.fireDate = fireDate;
+    notification.soundName = UILocalNotificationDefaultSoundName;
+    notification.timeZone = [NSTimeZone defaultTimeZone];
+    notification.userInfo = userInfo;
+    return notification;
+}
+
+- (void)scheduleNotificationForReminder:(OHMReminder *)reminder
+{
+    NSLog( @"calling: %s", __PRETTY_FUNCTION__ );
     
     NSDate *fireDate = reminder.nextFireDate;
     if (!fireDate) {
@@ -88,13 +99,31 @@
         return;
     }
     
-    notification.alertBody = alertBody;
-    notification.fireDate = fireDate;
-    notification.soundName = UILocalNotificationDefaultSoundName;
-    notification.timeZone = [NSTimeZone defaultTimeZone];
-    notification.userInfo = userInfo;
+    UILocalNotification *notification = [self notificationForReminder:reminder fireDate:fireDate];
+    
+    if (reminder.repeatsDaily && !reminder.usesTimeRangeValue) {
+        notification.repeatInterval = NSCalendarUnitDay;
+    }
+    else {
+        [self scheduleWeekOfNotificationsForReminder:reminder];
+    }
     
     [[UIApplication sharedApplication] scheduleLocalNotification:notification];
+    
+    [self debugPrintAllNotifications];
+}
+
+- (void)scheduleWeekOfNotificationsForReminder:(OHMReminder *)reminder
+{
+    NSDate *nextFireDate = reminder.nextFireDate;
+    for (int i = 1; i <= 7; i++) {
+        NSDate * fireDate = [nextFireDate dateByAddingDays:i];
+        fireDate = [reminder fireDateForDate:fireDate];
+        if (fireDate) {
+            UILocalNotification *notification = [self notificationForReminder:reminder fireDate:fireDate];
+            [[UIApplication sharedApplication] scheduleLocalNotification:notification];
+        }
+    }
 }
 
 - (void)processFiredLocalNotification:(UILocalNotification *)notification
@@ -117,6 +146,8 @@
     
     [self updateScheduleForReminder:reminder];
     [[OHMModel sharedModel] saveModelState];
+    
+    [self debugPrintAllNotifications];
 }
 
 - (void)processArrivalAtLocationForReminder:(OHMReminder *)reminder
@@ -220,7 +251,7 @@
         NSString *reminderID = notification.userInfo.reminderID;
         OHMReminder *reminder = [[OHMModel sharedModel] reminderWithUUID:reminderID];
         NSDate *fireDate = notification.fireDate;
-        NSLog(@"%@", [NSString stringWithFormat:@"%lu. %@, %@", idx + 1, reminder.survey.surveyName, [dateFormatter stringFromDate:fireDate]]);
+        NSLog(@"%@", [NSString stringWithFormat:@"%lu. %@, %@, interval: %d", idx + 1, reminder.survey.surveyName, [dateFormatter stringFromDate:fireDate], (int)notification.repeatInterval]);
     }];
     
     [[OHMLocationManager sharedLocationManager] debugPrintAllMonitoredRegions];

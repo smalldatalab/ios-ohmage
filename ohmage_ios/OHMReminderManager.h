@@ -19,6 +19,7 @@
 - (void)processArrivalAtLocationForReminder:(OHMReminder *)reminder;
 - (void)synchronizeReminders;
 - (void)scheduleNotificationForReminder:(OHMReminder *)reminder;
+- (void)unscheduleNotificationsForReminder:(OHMReminder *)reminder;
 - (void)cancelAllNotificationsForLoggedInUser;
 
 @end
