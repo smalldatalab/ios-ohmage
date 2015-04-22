@@ -19,6 +19,9 @@
 #import <AVFoundation/AVFoundation.h>
 #import <MobileCoreServices/MobileCoreServices.h>
 
+#define MIN_NUMBERPICKER_VALUE -9999
+#define MAX_NUMBERPICKER_VALUE 9999
+
 @interface OHMSurveyItemViewController () <UITextFieldDelegate,
 UIPickerViewDelegate, UIPickerViewDataSource,
 UITableViewDataSource, UITableViewDelegate, UINavigationControllerDelegate,
@@ -34,7 +37,6 @@ UIImagePickerControllerDelegate, OHMAudioRecorderDelegate>
 @property (nonatomic, strong) UIView *validationMessageView;
 @property (nonatomic) NSInteger selectedCount;
 
-//@property (nonatomic, strong) UISegmentedControl *numberPlusMinusControl;
 @property (nonatomic, strong) UIPickerView *numberPicker;
 @property (nonatomic, strong) UIImageView *imageView;
 @property (nonatomic, strong) UIImagePickerController *imagePicker;
@@ -169,7 +171,7 @@ UIImagePickerControllerDelegate, OHMAudioRecorderDelegate>
             break;
         case OHMSurveyItemTypeNumberPrompt:
             if (self.numberPicker != nil) {
-                self.nextButton.enabled = self.promptResponse.numberValue != nil;
+                self.nextButton.enabled = YES;
             }
             else {
                 self.nextButton.enabled = [self validateTextField];
@@ -189,7 +191,6 @@ UIImagePickerControllerDelegate, OHMAudioRecorderDelegate>
 {
     switch (self.item.itemTypeValue) {
         case OHMSurveyItemTypeNumberPrompt:
-            return (self.item.min == nil) || (self.item.max == nil);
         case OHMSurveyItemTypeTextPrompt:
             return YES;
         default:
@@ -199,8 +200,7 @@ UIImagePickerControllerDelegate, OHMAudioRecorderDelegate>
 
 - (BOOL)itemNeedsNumberPicker
 {
-    return (self.item.itemTypeValue == OHMSurveyItemTypeNumberPrompt
-            && self.item.min != nil && self.item.max != nil);
+    return (self.item.itemTypeValue == OHMSurveyItemTypeNumberPrompt && self.item.wholeNumbersOnlyValue);
 }
 
 - (BOOL)itemNeedsChoiceTable
@@ -307,14 +307,6 @@ UIImagePickerControllerDelegate, OHMAudioRecorderDelegate>
         textField.keyboardType = (self.item.wholeNumbersOnlyValue ? UIKeyboardTypeNumberPad : UIKeyboardTypeDecimalPad);
         textField.enablesReturnKeyAutomatically = YES;
         textField.returnKeyType = UIReturnKeyDone;
-        
-//        UISegmentedControl *plusMinusControl = [[UISegmentedControl alloc] initWithItems:@[@"-", @"+"]];
-//        plusMinusControl.momentary = YES;
-//        [plusMinusControl addTarget:self action:@selector(numberPromptSegmentedControlPressed:) forControlEvents:UIControlEventValueChanged];
-//        [self.view addSubview:plusMinusControl];
-//        [self.view constrainChildToDefaultHorizontalInsets:plusMinusControl];
-//        [plusMinusControl positionBelowElementWithDefaultMargin:textField];
-//        self.numberPlusMinusControl = plusMinusControl;
     }
     
     if (self.promptResponse.numberValue != nil) {
@@ -347,17 +339,24 @@ UIImagePickerControllerDelegate, OHMAudioRecorderDelegate>
 {
     UIPickerView *pickerView = [[UIPickerView alloc] init];
     [self.view addSubview:pickerView];
-    [pickerView positionBelowElementWithDefaultMargin:self.textLabel];
+    [pickerView positionBelowElementWithDefaultMargin:self.textField];
     [self.view constrainChildToDefaultHorizontalInsets:pickerView];
     pickerView.dataSource = self;
     pickerView.delegate = self;
     self.numberPicker = pickerView;
     
-    if (self.item.defaultNumberResponse != nil) {
-        NSInteger row = [self rowForValue:[self.item.defaultNumberResponse integerValue]];
-        [pickerView selectRow:row inComponent:0 animated:NO];
-        [self pickerView:pickerView didSelectRow:row inComponent:0];
-    }
+    NSInteger currentVal = 0;
+    if (self.promptResponse.numberValue != nil) currentVal = [self.promptResponse.numberValue integerValue];
+    else if (self.item.defaultNumberResponse != nil) currentVal = [self.item.defaultNumberResponse integerValue];
+    else if (self.item.min != nil && self.item.minValue > 0) currentVal = [self.item.min integerValue];
+    else if (self.item.max != nil && self.item.maxValue < 0) currentVal = [self.item.max integerValue];
+    
+    NSInteger row = [self numberPickerRowForValue:currentVal];
+    [pickerView selectRow:row inComponent:0 animated:NO];
+    self.promptResponse.numberValueValue = currentVal;
+    self.textField.text = [@(currentVal) stringValue];
+    
+    self.nextButton.enabled = YES;
 }
 
 - (void)setupChoiceTable
@@ -493,6 +492,7 @@ UIImagePickerControllerDelegate, OHMAudioRecorderDelegate>
     if (self.item.itemTypeValue == OHMSurveyItemTypeTimestampPrompt) {
         [self recordDateTime];
     }
+    NSLog(@"number value: %@", [self.promptResponse.numberValue stringValue]);
     [self pushNextItemViewController];
 }
 
@@ -536,30 +536,32 @@ UIImagePickerControllerDelegate, OHMAudioRecorderDelegate>
 
 #pragma mark - Number Prompt
 
-- (NSInteger)valueForRow:(NSInteger)row
+- (NSInteger)numberPickerValueForRow:(NSInteger)row
 {
-    return [self.item.min integerValue] + row - 1;
+    return MAX([self numberPickerRangeMin], MIN([self numberPickerRangeLength] + 1, [self numberPickerRangeMin] + row));
 }
 
-- (NSInteger)rowForValue:(NSInteger)value
+- (NSInteger)numberPickerRowForValue:(NSInteger)value
 {
-    return value - [self.item.min integerValue] + 1;
+    return MAX(0, MIN([self numberPickerRangeLength], value - [self numberPickerRangeMin]));
 }
 
-//- (void)numberPromptSegmentedControlPressed:(id)sender {
-//    double value = [self.textField.text doubleValue];
-//    if (value == 0 && self.item.minValue > 0) {
-//        value = self.item.minValue;
-//    }
-//    else {
-//        value += (self.numberPlusMinusControl.selectedSegmentIndex * 2) - 1;
-//    }
-//    if ([self validateNumberValue:value]) {
-//        self.textField.text = [NSString stringWithFormat:@"%g", value];
-//        self.nextButton.enabled = YES;
-//        [self setResponseValueFromTextField];
-//    }
-//}
+- (NSInteger)numberPickerRangeMin
+{
+    static int minRow = MIN_NUMBERPICKER_VALUE - 1; // include "< MIN" in range
+    return self.item.min != nil ? [self.item.min integerValue] : minRow;
+}
+
+- (NSInteger)numberPickerRangeMax
+{
+    static int maxRow = MAX_NUMBERPICKER_VALUE + 1; // include "> MAX" in range
+    return self.item.max != nil ? [self.item.max integerValue] : maxRow;
+}
+
+- (NSInteger)numberPickerRangeLength
+{
+    return [self numberPickerRangeMax] - [self numberPickerRangeMin];
+}
 
 - (BOOL)validateNumberValue:(double)value
 {
@@ -584,28 +586,35 @@ UIImagePickerControllerDelegate, OHMAudioRecorderDelegate>
 
 - (NSInteger)pickerView:(UIPickerView *)pickerView numberOfRowsInComponent:(NSInteger)component
 {
-    NSLog(@"number of rows in component: %d, min: %f, max: %f", [self.item.max integerValue] - [self.item.min integerValue], self.item.minValue, self.item.maxValue);
-    return [self.item.max integerValue] - [self.item.min integerValue] + 2; // +1 for inclusive range, +1 for "select" row
+    return [self numberPickerRangeLength] + 1; // +1 for inclusive range
 }
 
 - (NSString *)pickerView:(UIPickerView *)pickerView titleForRow:(NSInteger)row forComponent:(NSInteger)component
 {
-    if (row == 0) return @"Select";
+    NSInteger value = [self numberPickerValueForRow:row];
+    if ( (self.item.min == nil && value < MIN_NUMBERPICKER_VALUE)
+        || (self.item.max == nil && value > MAX_NUMBERPICKER_VALUE)) {
+        return @"use keypad";
+    }
     else {
-        NSInteger value = [self valueForRow:row];
-        return [NSString stringWithFormat:@"%d", (int)value];
+        return [@(value) stringValue];
     }
 }
 
 - (void)pickerView:(UIPickerView *)pickerView didSelectRow:(NSInteger)row inComponent:(NSInteger)component
 {
-    if (row == 0) {
-        self.promptResponse.numberValue = nil;
+    NSInteger value = [self numberPickerValueForRow:row];
+    if (self.item.min == nil && value < MIN_NUMBERPICKER_VALUE) {
+        value = MIN_NUMBERPICKER_VALUE;
+        [self.textField becomeFirstResponder];
     }
-    else {
-        self.promptResponse.numberValueValue = row + self.item.minValue - 1;
+    else if (self.item.max == nil && value > MAX_NUMBERPICKER_VALUE) {
+        value = MAX_NUMBERPICKER_VALUE;
+        [self.textField becomeFirstResponder];
     }
-    [self updateNextButtonEnabledState];
+    
+    self.promptResponse.numberValueValue = value;
+    self.textField.text = [@(value) stringValue];
 }
 
 #pragma mark - Choice Table
@@ -714,6 +723,10 @@ UIImagePickerControllerDelegate, OHMAudioRecorderDelegate>
     if (self.item.itemTypeValue == OHMSurveyItemTypeNumberPrompt) {
         self.promptResponse.numberValueValue = (self.item.wholeNumbersOnlyValue ? [self.textField.text integerValue]
                                                 : [self.textField.text doubleValue]);
+        if (self.numberPicker != nil) {
+            NSInteger row = [self numberPickerRowForValue:[self.promptResponse.numberValue integerValue]];
+            [self.numberPicker selectRow:row inComponent:0 animated:YES];
+        }
     }
     else if (self.item.itemTypeValue == OHMSurveyItemTypeTextPrompt) {
         self.promptResponse.stringValue = self.textField.text;
@@ -760,7 +773,6 @@ UIImagePickerControllerDelegate, OHMAudioRecorderDelegate>
         message = [message stringByAppendingString:@" characters long"];
     }
     
-//    UIView *presenter = self.numberPlusMinusControl ? self.numberPlusMinusControl : self.textField;
     UIView *presenter = self.textField;
     CGRect messageFrame = CGRectInset(presenter.frame, kUIViewSmallTextMargin, kUIViewSmallTextMargin);
     UIView *messageView = [OHMUserInterface fixedSizeFramedLabelWithText:message
