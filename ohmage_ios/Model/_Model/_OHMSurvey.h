@@ -9,6 +9,7 @@ extern const struct OHMSurveyAttributes {
 	__unsafe_unretained NSString *schemaName;
 	__unsafe_unretained NSString *schemaNamespace;
 	__unsafe_unretained NSString *schemaVersion;
+	__unsafe_unretained NSString *sha1Digest;
 	__unsafe_unretained NSString *surveyDescription;
 	__unsafe_unretained NSString *surveyName;
 } OHMSurveyAttributes;
@@ -61,6 +62,10 @@ extern const struct OHMSurveyRelationships {
 @property (nonatomic, strong) NSString* schemaVersion;
 
 //- (BOOL)validateSchemaVersion:(id*)value_ error:(NSError**)error_;
+
+@property (nonatomic, strong) NSString* sha1Digest;
+
+//- (BOOL)validateSha1Digest:(id*)value_ error:(NSError**)error_;
 
 @property (nonatomic, strong) NSString* surveyDescription;
 
@@ -141,6 +146,9 @@ extern const struct OHMSurveyRelationships {
 
 - (NSString*)primitiveSchemaVersion;
 - (void)setPrimitiveSchemaVersion:(NSString*)value;
+
+- (NSString*)primitiveSha1Digest;
+- (void)setPrimitiveSha1Digest:(NSString*)value;
 
 - (NSString*)primitiveSurveyDescription;
 - (void)setPrimitiveSurveyDescription:(NSString*)value;

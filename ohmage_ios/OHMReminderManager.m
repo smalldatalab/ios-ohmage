@@ -211,6 +211,10 @@
     
     NSArray *timeReminders = [[OHMModel sharedModel] timeReminders];
     for (OHMReminder *reminder in timeReminders) {
+        if (reminder.survey == nil || reminder.survey.user == nil) {
+            [[OHMModel sharedModel] deleteObject:reminder];
+            continue;
+        }
         if (reminder.nextFireDate != nil && [reminder.nextFireDate isBeforeDate:[NSDate date]]) {
             reminder.lastFireDate = reminder.nextFireDate;
             [self processFiredReminder:reminder];

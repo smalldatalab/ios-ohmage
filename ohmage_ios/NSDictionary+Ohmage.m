@@ -8,6 +8,10 @@
 
 #import "NSDictionary+Ohmage.h"
 
+@interface NSDictionary (SAMAdditions)
+- (NSString *)sam_SHA1Digest;
+@end
+
 @implementation NSDictionary (Ohmage)
 
 //- (NSArray *)jsonArray
@@ -307,6 +311,10 @@
     return [self nonNullValueForKey:@"reminderID"];
 }
 
+- (NSString *)SHA1Digest {
+    return [self sam_SHA1Digest];
+}
+
 @end
 
 
@@ -360,6 +368,40 @@
 - (void)setReminderID:(NSString *)reminderID;
 {
     self[@"reminderID"] = reminderID;
+}
+
+@end
+
+
+
+
+#pragma mark - SAMAdittions
+// https://github.com/soffes/SAMCategories
+
+#include <CommonCrypto/CommonDigest.h>
+
+@implementation NSDictionary(SAMAdditions)
+
+- (NSString *)sam_SHA1Digest {
+    return [[self class] sam_SHA1DigestWithData:[self sam_prehashData]];
+}
+
+- (NSData *)sam_prehashData {
+    return [NSPropertyListSerialization dataWithPropertyList:self format:NSPropertyListBinaryFormat_v1_0 options:kNilOptions error:nil];
+}
+
++ (NSString *)sam_SHA1DigestWithData:(NSData *)data {
+    uint8_t digest[CC_SHA1_DIGEST_LENGTH];
+    CC_SHA1(data.bytes, (CC_LONG)data.length, digest);
+    return [[self class] sam_stringFromDigest:digest length:CC_SHA1_DIGEST_LENGTH];
+}
+
++ (NSString *)sam_stringFromDigest:(uint8_t *)digest length:(int)length {
+    NSMutableString *ms = [[NSMutableString alloc] initWithCapacity:length * 2];
+    for (int i = 0; i < length; i++) {
+        [ms appendFormat: @"%02x", (int)digest[i]];
+    }
+    return [ms copy];
 }
 
 @end

@@ -66,7 +66,8 @@ static const NSInteger kSurveyResponsesSectionIndex = 1;
                                                   sectionNameKeyPath:nil
                                                            cacheName:nil];
     
-    NSPredicate *sureveyResultsPredicate = [NSPredicate predicateWithFormat:@"survey == %@", self.survey];
+    NSPredicate *sureveyResultsPredicate = [NSPredicate predicateWithFormat:@"survey.schemaName == %@ && survey.schemaNamespace == %@",
+                                            self.survey.schemaName, self.survey.schemaNamespace];
     self.fetchedSurveyResponsesController =
     [[OHMModel sharedModel] fetchedResultsControllerWithEntityName:[OHMSurveyResponse entityName]
                                                              sortKey:@"timestamp"
@@ -80,6 +81,7 @@ static const NSInteger kSurveyResponsesSectionIndex = 1;
     NSString *nameText = self.survey.surveyName;
     NSString *descriptionText = self.survey.surveyDescription;
     NSString *plural = ([self.survey.surveyItems count] == 1 ? @"Prompt" : @"Prompts");
+    NSString *versionText = [NSString stringWithFormat:@"Version %@", self.survey.schemaVersion];
     NSString *promptCountText = [NSString stringWithFormat:@"%lu %@", (unsigned long)[self.survey.surveyItems count], plural];
     
     CGFloat contentWidth = self.tableView.bounds.size.width - 2 * kUIViewHorizontalMargin;
@@ -90,6 +92,9 @@ static const NSInteger kSurveyResponsesSectionIndex = 1;
     
     UILabel *descriptionLabel = [OHMUserInterface headerDescriptionLabelWithText:descriptionText width:contentWidth];
     contentHeight += descriptionLabel.frame.size.height + kUIViewSmallTextMargin;
+    
+    UILabel *versionLabel = [OHMUserInterface headerDetailLabelWithText:versionText width:contentWidth];
+    contentHeight += versionLabel.frame.size.height + kUIViewVerticalMargin;
     
     UILabel *promptCountLabel = [OHMUserInterface headerDetailLabelWithText:promptCountText width:contentWidth];
     contentHeight += promptCountLabel.frame.size.height + kUIViewVerticalMargin;
@@ -104,18 +109,21 @@ static const NSInteger kSurveyResponsesSectionIndex = 1;
     UIView *headerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.tableView.frame.size.width, contentHeight)];
     
     [headerView addSubview:nameLabel];
+    [headerView addSubview:versionLabel];
     [headerView addSubview:descriptionLabel];
     [headerView addSubview:promptCountLabel];
     [headerView addSubview:takeSurveyButton];
     
     [nameLabel centerHorizontallyInView:headerView];
     [descriptionLabel centerHorizontallyInView:headerView];
+    [versionLabel centerFrameHorizontallyInView:headerView];
     [promptCountLabel centerHorizontallyInView:headerView];
     [takeSurveyButton centerHorizontallyInView:headerView];
     
     [nameLabel constrainToTopInParentWithMargin:kUIViewVerticalMargin];
     [descriptionLabel positionBelowElement:nameLabel margin:kUIViewSmallTextMargin];
-    [promptCountLabel positionBelowElement:descriptionLabel margin:kUIViewSmallTextMargin];
+    [versionLabel positionBelowElement:descriptionLabel margin:kUIViewSmallTextMargin];
+    [promptCountLabel positionBelowElement:versionLabel margin:kUIViewSmallTextMargin];
     [takeSurveyButton positionBelowElement:promptCountLabel margin:kUIViewVerticalMargin];
     
     self.tableView.tableHeaderView = headerView;

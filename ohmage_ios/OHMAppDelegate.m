@@ -38,7 +38,7 @@
 //    [OMHClient setDSUBaseURL:[OMHClient defaultDSUBaseURL]];
 //#endif
     
-    if (![OMHClient sharedClient].isSignedIn) {
+    if (![OMHClient sharedClient].isSignedIn || [OHMModel sharedModel].loggedInUser == nil) {
         self.window.rootViewController = self.loginViewController;
     }
     else {
@@ -147,6 +147,25 @@
         self.window.rootViewController = newRoot;
         self.loginViewController = nil;
         [[OHMLocationManager sharedLocationManager] requestAuthorization];
+    }];
+}
+
+- (void)userDidLogout
+{
+    OHMLoginViewController *newRoot = self.loginViewController;
+    
+    UIView *fromView = nil;
+    if (self.navigationController.topViewController.presentedViewController != nil) {
+        fromView = self.navigationController.topViewController.presentedViewController.view;
+    }
+    else {
+        fromView = self.navigationController.view;
+    }
+    
+    [UIView transitionFromView:fromView toView:newRoot.view duration:0.35 options:UIViewAnimationOptionTransitionCrossDissolve completion:^(BOOL finished) {
+        NSLog(@"finished:  %d", finished);
+        self.window.rootViewController = newRoot;
+        self.navigationController = nil;
     }];
 }
 

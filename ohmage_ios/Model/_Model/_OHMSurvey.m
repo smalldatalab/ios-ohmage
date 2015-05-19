@@ -9,6 +9,7 @@ const struct OHMSurveyAttributes OHMSurveyAttributes = {
 	.schemaName = @"schemaName",
 	.schemaNamespace = @"schemaNamespace",
 	.schemaVersion = @"schemaVersion",
+	.sha1Digest = @"sha1Digest",
 	.surveyDescription = @"surveyDescription",
 	.surveyName = @"surveyName",
 };
@@ -105,6 +106,8 @@ const struct OHMSurveyRelationships OHMSurveyRelationships = {
 @dynamic schemaNamespace;
 
 @dynamic schemaVersion;
+
+@dynamic sha1Digest;
 
 @dynamic surveyDescription;
 

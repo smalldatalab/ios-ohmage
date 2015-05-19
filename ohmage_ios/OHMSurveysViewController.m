@@ -11,6 +11,7 @@
 #import "OHMSurveyDetailViewController.h"
 #import "OHMSurveyItemViewController.h"
 #import "OHMUserViewController.h"
+#import "OHMAppDelegate.h"
 #import "OHMModel.h"
 #import "OHMSurvey.h"
 #import "OHMReminder.h"
@@ -89,6 +90,7 @@
 {
 
     if (_fetchedResultsController == nil) {
+
         NSSortDescriptor *dueDescriptor = [NSSortDescriptor sortDescriptorWithKey:@"isDue" ascending:NO];
         NSSortDescriptor *indexDescriptor = [NSSortDescriptor sortDescriptorWithKey:@"index" ascending:YES];
         NSPredicate *predicate = [NSPredicate predicateWithFormat:@"user == %@", self.model.loggedInUser];
@@ -260,8 +262,13 @@
 - (void)OHMModelUserDidChange:(OHMModel *)model
 {
     self.fetchedResultsController = nil;
-    [self.fetchedResultsController performFetch:nil];
-    [self.tableView reloadData];
+    if (model.loggedInUser != nil) {
+        [self.fetchedResultsController performFetch:nil];
+        [self.tableView reloadData];
+    }
+    else if (self.presentedViewController == nil) {
+        [(OHMAppDelegate *)[UIApplication sharedApplication].delegate userDidLogout];
+    }
 }
 
 

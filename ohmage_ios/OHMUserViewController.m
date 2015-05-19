@@ -7,7 +7,7 @@
 //
 
 #import "OHMUserViewController.h"
-#import "OHMLoginViewController.h"
+#import "OHMAppDelegate.h"
 #import "OHMReminderViewController.h"
 #import "OHMUser.h"
 #import "OHMReminder.h"
@@ -67,8 +67,9 @@ static NSInteger const kSettingsRowCount = 2;
 - (void)logoutButtonPressed:(id)sender
 {
     [[OHMModel sharedModel] logout];
-    OHMLoginViewController *vc = [[OHMLoginViewController alloc] init];
-    [self presentViewController:vc animated:YES completion:nil];
+    [(OHMAppDelegate *)[UIApplication sharedApplication].delegate userDidLogout];
+//    OHMLoginViewController *vc = [[OHMLoginViewController alloc] init];
+//    [self presentViewController:vc animated:YES completion:nil];
 }
 
 - (void)setupHeader

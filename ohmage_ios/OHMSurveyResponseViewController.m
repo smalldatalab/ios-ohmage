@@ -42,12 +42,13 @@
     self.navigationItem.title = @"Survey Response";
     
     self.canEditResponse = YES;
+    [self setupHeaderView];
 
     if (self.response.userSubmittedValue) {
         self.canEditResponse = NO;
     }
     else {
-        [self setupSubmitHeader];
+        [self setupSubmitFooter];
         
         // don't allow editing of surveys with conditions
         for (OHMSurveyPromptResponse * promptResponse in self.response.promptResponses) {
@@ -65,13 +66,42 @@
     [self.tableView reloadData];
 }
 
-- (void)setupSubmitHeader
+- (void)setupHeaderView
 {
-    UIView *headerView = [OHMUserInterface tableFooterViewWithButton:@"Submit" fromTableView:self.tableView setupBlock:^(UIButton *button) {
+    NSString *nameText = self.response.survey.surveyName;
+    NSString *versionText = [NSString stringWithFormat:@"Version %@", self.response.survey.schemaVersion];
+    
+    CGFloat contentWidth = self.tableView.bounds.size.width - 2 * kUIViewHorizontalMargin;
+    CGFloat contentHeight = kUIViewVerticalMargin;
+    
+    UILabel *nameLabel = [OHMUserInterface headerTitleLabelWithText:nameText width:contentWidth];
+    contentHeight += nameLabel.frame.size.height + kUIViewSmallTextMargin;
+    
+    UILabel *versionLabel = [OHMUserInterface headerDetailLabelWithText:versionText width:contentWidth];
+    contentHeight += versionLabel.frame.size.height + kUIViewVerticalMargin;
+    
+    UIView *headerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.tableView.frame.size.width, contentHeight)];
+    
+    [headerView addSubview:nameLabel];
+    [headerView addSubview:versionLabel];
+    
+    [nameLabel centerHorizontallyInView:headerView];
+    [versionLabel centerFrameHorizontallyInView:headerView];
+    
+    [nameLabel constrainToTopInParentWithMargin:kUIViewVerticalMargin];
+    [versionLabel positionBelowElement:nameLabel margin:kUIViewSmallTextMargin];
+    
+    self.tableView.tableHeaderView = headerView;
+}
+
+
+- (void)setupSubmitFooter
+{
+    UIView *footerView = [OHMUserInterface tableFooterViewWithButton:@"Submit" fromTableView:self.tableView setupBlock:^(UIButton *button) {
         [button addTarget:self action:@selector(submitButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
         button.backgroundColor = [OHMAppConstants colorForSurveyIndex:self.response.survey.indexValue];
     }];
-    self.tableView.tableHeaderView = headerView;
+    self.tableView.tableFooterView = footerView;
 }
 
 - (void)submitButtonPressed:(id)sender

@@ -124,10 +124,6 @@ static NSString * const kResponseErrorStringKey = @"ResponseErrorString";
 - (void)clientDidLoginWithEmail:(NSString *)email
 {
     self.user = [self userWithEmail:email];
-    [self fetchSurveys];
-    if (self.delegate) {
-        [self.delegate OHMModelUserDidChange:self];
-    }
 }
 
 /**
@@ -141,10 +137,10 @@ static NSString * const kResponseErrorStringKey = @"ResponseErrorString";
     [[UIApplication sharedApplication] cancelAllLocalNotifications];
     [[OHMLocationManager sharedLocationManager] stopMonitoringAllRegions];
     [self saveModelState];
-    
-    if (self.delegate) {
-        [self.delegate OHMModelUserDidChange:self];
-    }
+//    
+//    if (self.delegate) {
+//        [self.delegate OHMModelUserDidChange:self];
+//    }
 }
 
 /**
@@ -223,9 +219,17 @@ static NSString * const kResponseErrorStringKey = @"ResponseErrorString";
     NSLog(@"set user with email: %@", user.email);
     _user = user;
     
+    if (user != nil) {
+        [self fetchSurveys];
+    }
+    
     // keep track of current logged-in user by ID
     [self setPersistentStoreMetadataText:user.email forKey:@"loggedInUserEmail"];
     [self saveModelState];
+    
+    if (self.delegate) {
+        [self.delegate OHMModelUserDidChange:self];
+    }
 }
 
 /**
@@ -560,6 +564,7 @@ static NSString * const kResponseErrorStringKey = @"ResponseErrorString";
 - (void)fetchSurveys
 {
     NSString *request = @"surveys";
+    [[OMHClient sharedClient] setJSONResponseSerializerRemovesNulls:YES];
     [[OMHClient sharedClient] authenticatedGetRequest:request withParameters:nil completionBlock:^(id responseObject, NSError *error, NSInteger statusCode) {
         if (error == nil) {
             NSLog(@"fetch surveys success");
@@ -580,25 +585,53 @@ static NSString * const kResponseErrorStringKey = @"ResponseErrorString";
     NSMutableSet *surveys = [NSMutableSet setWithCapacity:surveyDefinitions.count];
     int index = 0;
     for (NSDictionary *surveyDefinition in surveyDefinitions) {
-        OHMSurvey * survey = [self surveyWithSchemaNamespace:surveyDefinition.surveySchemaNamespace
-                                                        name:surveyDefinition.surveySchemaName
-                                                     version:surveyDefinition.surveySchemaVersion];
-        survey.indexValue = index++;
-        if ([survey.objectID isTemporaryID]) {
-            [self createSurvey:survey withDefinition:surveyDefinition];
+        
+        NSString *definitionDigest = surveyDefinition.SHA1Digest;
+        OHMSurvey *existingSurvey = [self surveyWithSchemaNamespace:surveyDefinition.surveySchemaNamespace
+                                                               name:surveyDefinition.surveySchemaName];
+        
+        OHMSurvey *survey = nil;
+        if (existingSurvey != nil && [definitionDigest isEqualToString:existingSurvey.sha1Digest]) {
+            NSLog(@"SHA1 Digests are equal for survey: %@", existingSurvey.surveyName);
+            survey = existingSurvey;
         }
+        else {
+            survey = [self createSurveyWithDefinition:surveyDefinition];
+            survey.sha1Digest = definitionDigest;
+            if (existingSurvey != nil) {
+                NSLog(@"%@ oldHash: %@, newHash: %@", existingSurvey.surveyName, existingSurvey.sha1Digest, definitionDigest);
+                [self migrateNotificationsFromOldSurvey:existingSurvey toNewSurvey:survey];
+                NSLog(@"new survey reminders: %@", [@(survey.reminders.count) stringValue]);
+            }
+        }
+        survey.indexValue = index++;
         [surveys addObject:survey];
+        
     }
+    
     self.user.surveys = surveys;
     [self saveModelState];
 }
 
-- (void)createSurvey:(OHMSurvey *)survey withDefinition:(NSDictionary *)surveyDefinition
+- (OHMSurvey *)createSurveyWithDefinition:(NSDictionary *)surveyDefinition
 {
     NSLog(@"creating survey: %@, v%@", surveyDefinition.surveySchemaName, surveyDefinition.surveySchemaVersion);
+    OHMSurvey *survey = [self insertNewSurvey];
+    survey.schemaNamespace = surveyDefinition.surveySchemaNamespace;
+    survey.schemaName = surveyDefinition.surveySchemaName;
+    survey.schemaVersion = surveyDefinition.surveySchemaVersion;
     survey.surveyName = [surveyDefinition surveyName];
     survey.surveyDescription = [surveyDefinition surveyDescription];
     [self createSurveyItems:[surveyDefinition surveyItems] forSurvey:survey];
+    return survey;
+}
+
+- (void)migrateNotificationsFromOldSurvey:(OHMSurvey *)oldSurvey toNewSurvey:(OHMSurvey *)newSurvey
+{
+    newSurvey.reminders = oldSurvey.reminders;
+//    NSSet *reminders = oldSurvey.reminders;
+//    [oldSurvey removeReminders:reminders];
+//    [newSurvey addReminders:reminders];
 }
 
 
@@ -716,16 +749,37 @@ static NSString * const kResponseErrorStringKey = @"ResponseErrorString";
     return user;
 }
 
+///**
+// *  surveyWithSchemaNamespace:andVersion
+// */
+//- (OHMSurvey *)surveyWithSchemaNamespace:(NSString *)schemaNamespace name:(NSString *)schemaName version:(NSString *)schemaVersion
+//{
+//    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"(schemaNamespace == %@) AND (schemaName == %@) AND (schemaVersion == %@)", schemaNamespace, schemaName, schemaVersion];
+//    OHMSurvey *survey = (OHMSurvey *)[self fetchObjectForEntityName:[OHMSurvey entityName] withUniquePredicate:predicate create:YES];
+//    survey.schemaNamespace = schemaNamespace;
+//    survey.schemaName = schemaName;
+//    survey.schemaVersion = schemaVersion;
+//    return survey;
+//}
+
+
+/**
+ *  insertNewSurvey
+ */
+- (OHMSurvey *)insertNewSurvey
+{
+    OHMSurvey *newSurvey = (OHMSurvey *)[self insertNewObjectForEntityForName:[OHMSurvey entityName]];
+    return newSurvey;
+}
+
 /**
  *  surveyWithSchemaNamespace:andVersion
  */
-- (OHMSurvey *)surveyWithSchemaNamespace:(NSString *)schemaNamespace name:(NSString *)schemaName version:(NSString *)schemaVersion
+- (OHMSurvey *)surveyWithSchemaNamespace:(NSString *)schemaNamespace name:(NSString *)schemaName
 {
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"(schemaNamespace == %@) AND (schemaName == %@) AND (schemaVersion == %@)", schemaNamespace, schemaName, schemaVersion];
-    OHMSurvey *survey = (OHMSurvey *)[self fetchObjectForEntityName:[OHMSurvey entityName] withUniquePredicate:predicate create:YES];
-    survey.schemaNamespace = schemaNamespace;
-    survey.schemaName = schemaName;
-    survey.schemaVersion = schemaVersion;
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"(schemaNamespace == %@) AND (schemaName == %@) AND (user == %@)",
+                              schemaNamespace, schemaName, self.user];
+    OHMSurvey *survey = (OHMSurvey *)[self fetchObjectForEntityName:[OHMSurvey entityName] withUniquePredicate:predicate create:NO];
     return survey;
 }
 
@@ -777,8 +831,11 @@ static NSString * const kResponseErrorStringKey = @"ResponseErrorString";
     if ([results count]) {
         return [results firstObject];
     }
-    else {
+    else if (create) {
         return [self insertNewObjectForEntityForName:entityName];
+    }
+    else {
+        return nil;
     }
 }
 
@@ -882,8 +939,10 @@ static NSString * const kResponseErrorStringKey = @"ResponseErrorString";
 - (void)resetClient
 {
     [self deletePersistentStore];
-    [[UIApplication sharedApplication] cancelAllLocalNotifications];
-    [[OHMLocationManager sharedLocationManager] stopMonitoringAllRegions];
+    [self logout];
+//    [[UIApplication sharedApplication] cancelAllLocalNotifications];
+//    [[OHMLocationManager sharedLocationManager] stopMonitoringAllRegions];
+//    [self setUser:nil];
 }
 
 

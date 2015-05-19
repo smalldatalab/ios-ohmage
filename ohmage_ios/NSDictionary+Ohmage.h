@@ -61,6 +61,8 @@
 - (NSString *)surveyPromptChoiceStringValue;
 - (NSNumber *)surveyPromptChoiceNumberValue;
 
+- (NSString *)SHA1Digest;
+
 @end
 
 
