@@ -14,6 +14,8 @@
 
 #import "OMHClient.h"
 
+#import <Crashlytics/Crashlytics.h>
+
 @interface OHMAppDelegate ()
 
 @property (nonatomic, strong) OHMLoginViewController *loginViewController;
@@ -25,6 +27,8 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+    [Crashlytics startWithAPIKey:@"9e374b1b5bf08074d78da492850342b98bf183ff"];
+    
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     
     [OMHClient setupClientWithAppGoogleClientID:kOhmageGoogleClientID
