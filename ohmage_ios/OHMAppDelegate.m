@@ -14,6 +14,7 @@
 
 #import "OMHClient.h"
 
+#import <Fabric/Fabric.h>
 #import <Crashlytics/Crashlytics.h>
 
 @interface OHMAppDelegate ()
@@ -27,7 +28,7 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    [Crashlytics startWithAPIKey:@"9e374b1b5bf08074d78da492850342b98bf183ff"];
+    [Fabric with:@[CrashlyticsKit]];
     
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     
