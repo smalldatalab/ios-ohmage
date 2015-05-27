@@ -55,7 +55,6 @@
 		1E3C80EF191083BB0088D2D0 /* _OHMReminder.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E3C80EE191083BB0088D2D0 /* _OHMReminder.m */; };
 		1E3C80F2191083DA0088D2D0 /* OHMReminder.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E3C80F1191083DA0088D2D0 /* OHMReminder.m */; };
 		1E450F391999B1A60089B05E /* NSURL+QueryDictionary.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E450F381999B1A60089B05E /* NSURL+QueryDictionary.m */; };
-		1E49E64C1B0B597600FF3578 /* Crashlytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1E49E64B1B0B597600FF3578 /* Crashlytics.framework */; };
 		1E56A328191302F500384AE9 /* OHMBaseViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E56A327191302F500384AE9 /* OHMBaseViewController.m */; };
 		1E56A32B191303BC00384AE9 /* OHMViewControllerComposite.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E56A32A191303BC00384AE9 /* OHMViewControllerComposite.m */; };
 		1E56A32F1913043B00384AE9 /* OHMBaseTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E56A32E1913043B00384AE9 /* OHMBaseTableViewController.m */; };
@@ -64,7 +63,8 @@
 		1E56A3391913354200384AE9 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1E56A3381913354200384AE9 /* CoreLocation.framework */; };
 		1E56A33C1913643E00384AE9 /* OHMReminderDaysViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E56A33B1913643E00384AE9 /* OHMReminderDaysViewController.m */; };
 		1E56A341191448E700384AE9 /* OHMSurveyResponseViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E56A340191448E700384AE9 /* OHMSurveyResponseViewController.m */; };
-		1E575C311B15558700E7096A /* Fabric.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1E575C301B15558700E7096A /* Fabric.framework */; };
+		1E575C441B155C0600E7096A /* Crashlytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1E575C421B155C0600E7096A /* Crashlytics.framework */; };
+		1E575C451B155C0600E7096A /* Fabric.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1E575C431B155C0600E7096A /* Fabric.framework */; };
 		1E5D6DAB1922AB9000991783 /* OHMLocationSearchViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E5D6DAA1922AB9000991783 /* OHMLocationSearchViewController.m */; };
 		1E70096418CA6F8700203990 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1E70096318CA6F8700203990 /* Foundation.framework */; };
 		1E70096618CA6F8700203990 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1E70096518CA6F8700203990 /* CoreGraphics.framework */; };
@@ -239,7 +239,6 @@
 		1E3C80F1191083DA0088D2D0 /* OHMReminder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = OHMReminder.m; path = Model/OHMReminder.m; sourceTree = "<group>"; };
 		1E450F371999B1A60089B05E /* NSURL+QueryDictionary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSURL+QueryDictionary.h"; sourceTree = "<group>"; };
 		1E450F381999B1A60089B05E /* NSURL+QueryDictionary.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSURL+QueryDictionary.m"; sourceTree = "<group>"; };
-		1E49E64B1B0B597600FF3578 /* Crashlytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Crashlytics.framework; path = external/Crashlytics.framework; sourceTree = "<group>"; };
 		1E56A326191302F500384AE9 /* OHMBaseViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OHMBaseViewController.h; sourceTree = "<group>"; };
 		1E56A327191302F500384AE9 /* OHMBaseViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OHMBaseViewController.m; sourceTree = "<group>"; };
 		1E56A329191303BC00384AE9 /* OHMViewControllerComposite.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OHMViewControllerComposite.h; sourceTree = "<group>"; };
@@ -256,7 +255,8 @@
 		1E56A33B1913643E00384AE9 /* OHMReminderDaysViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OHMReminderDaysViewController.m; sourceTree = "<group>"; };
 		1E56A33F191448E700384AE9 /* OHMSurveyResponseViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OHMSurveyResponseViewController.h; sourceTree = "<group>"; };
 		1E56A340191448E700384AE9 /* OHMSurveyResponseViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OHMSurveyResponseViewController.m; sourceTree = "<group>"; };
-		1E575C301B15558700E7096A /* Fabric.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Fabric.framework; path = external/Fabric.framework; sourceTree = "<group>"; };
+		1E575C421B155C0600E7096A /* Crashlytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Crashlytics.framework; path = external/Crashlytics.framework; sourceTree = "<group>"; };
+		1E575C431B155C0600E7096A /* Fabric.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Fabric.framework; path = external/Fabric.framework; sourceTree = "<group>"; };
 		1E5D6DA91922AB9000991783 /* OHMLocationSearchViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OHMLocationSearchViewController.h; sourceTree = "<group>"; };
 		1E5D6DAA1922AB9000991783 /* OHMLocationSearchViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OHMLocationSearchViewController.m; sourceTree = "<group>"; };
 		1E70096018CA6F8700203990 /* ohmage.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ohmage.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -343,15 +343,15 @@
 				1E9081B51926837F00A0468C /* MediaPlayer.framework in Frameworks */,
 				1E9081B31926837400A0468C /* CoreText.framework in Frameworks */,
 				1E9081B11926836600A0468C /* CoreMotion.framework in Frameworks */,
-				1E575C311B15558700E7096A /* Fabric.framework in Frameworks */,
 				1E9081AF1926835100A0468C /* AssetsLibrary.framework in Frameworks */,
 				1E9081AD1926834A00A0468C /* AddressBook.framework in Frameworks */,
 				1E88257A1919C4C90034D231 /* libPEGKitIOS.a in Frameworks */,
-				1E49E64C1B0B597600FF3578 /* Crashlytics.framework in Frameworks */,
 				1EA203D01A584C9600F9C503 /* GoogleOpenSource.framework in Frameworks */,
 				1EA203D11A584C9600F9C503 /* GooglePlus.framework in Frameworks */,
 				1E56A3391913354200384AE9 /* CoreLocation.framework in Frameworks */,
 				1EAD55A718D27B4F00B55028 /* QuartzCore.framework in Frameworks */,
+				1E575C441B155C0600E7096A /* Crashlytics.framework in Frameworks */,
+				1E575C451B155C0600E7096A /* Fabric.framework in Frameworks */,
 				1EAD55A518D27B4800B55028 /* MapKit.framework in Frameworks */,
 				1E70096618CA6F8700203990 /* CoreGraphics.framework in Frameworks */,
 				1E70096818CA6F8700203990 /* UIKit.framework in Frameworks */,
@@ -567,8 +567,8 @@
 		1E70096218CA6F8700203990 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				1E575C301B15558700E7096A /* Fabric.framework */,
-				1E49E64B1B0B597600FF3578 /* Crashlytics.framework */,
+				1E575C421B155C0600E7096A /* Crashlytics.framework */,
+				1E575C431B155C0600E7096A /* Fabric.framework */,
 				1E9081B81926839700A0468C /* SystemConfiguration.framework */,
 				1E9081B61926838A00A0468C /* Security.framework */,
 				1E9081B41926837F00A0468C /* MediaPlayer.framework */,
