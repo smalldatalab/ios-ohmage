@@ -12,9 +12,11 @@
 #import "OHMModel.h"
 #import "DSUURLViewController.h"
 
-@interface OHMLoginViewController () <OMHSignInDelegate>
+@interface OHMLoginViewController () <OMHSignInDelegate, UITextFieldDelegate>
 
-@property (nonatomic, weak) UIButton *signInButton;
+@property (nonatomic, strong) UITextField *userTextField;
+@property (nonatomic, strong) UITextField *passwordTextField;
+@property (nonatomic, strong) UIButton *signInButton;
 @property (nonatomic, strong) UIActivityIndicatorView *activityIndicator;
 @property (nonatomic, strong) UILabel *signInFailureLabel;
 
@@ -27,10 +29,77 @@
     [super viewDidLoad];
     
     self.view.backgroundColor = [OHMAppConstants ohmageColor];
-    UIImage *launchImage = [UIImage imageNamed:@"login_bg"];
-    UIImageView *background = [[UIImageView alloc] initWithImage:launchImage];
-    [self.view addSubview:background];
-    [self.view constrainChildToEqualSize:background];
+    UIImage *headerImage = [UIImage imageNamed:@"ohmage_text_logo"];
+    UIImageView *header = [[UIImageView alloc] initWithImage:headerImage];
+    header.contentMode = UIViewContentModeScaleAspectFit;
+//    [self.view addSubview:hea];
+//    [self.view constrainChildToEqualSize:background];
+    
+//    UIColor* bgColor = [UIColor colorWithPatternImage:[UIImage imageNamed:@"ipad-BG-pattern"]];
+//    [self.view setBackgroundColor:bgColor];
+//    
+//    UILabel *header = [[UILabel alloc] init];
+//    header.text = @"ohmage";
+//    header.font = [UIFont fontWithName:@"MarkerFelt-Thin" size:45.0];
+//    header.textAlignment = NSTextAlignmentCenter;
+    
+    UIView *frame = [[UIView alloc] init];
+    frame.backgroundColor = [UIColor whiteColor];
+    frame.layer.cornerRadius = 8.0;
+    
+    UIView *separator = [[UIView alloc] init];
+    separator.backgroundColor = [[UIColor lightGrayColor] colorWithAlphaComponent:0.6];
+    
+    UITextField *userField = [[UITextField alloc] init];
+    userField.backgroundColor = [UIColor whiteColor];
+    userField.placeholder = @"Username";
+    userField.delegate = self;
+    userField.autocapitalizationType = UITextAutocapitalizationTypeNone;
+    self.userTextField = userField;
+    
+    UITextField *passField = [[UITextField alloc] init];
+    passField.backgroundColor = [UIColor whiteColor];
+    passField.placeholder = @"Password";
+    passField.secureTextEntry = YES;
+    passField.delegate = self;
+    self.passwordTextField = passField;
+    
+    UIButton *button = [UIButton buttonWithType:UIButtonTypeSystem];
+//    button.backgroundColor = [UIColor colorWithRed:0.0 green:110.0/255.0 blue:194.0/255.0 alpha:1.0];
+    button.backgroundColor = [UIColor whiteColor];
+    button.layer.cornerRadius = 8.0;
+    [button setTitle:@"Sign In" forState:UIControlStateNormal];
+    [button setTitleColor:[OHMAppConstants ohmageColor] forState:UIControlStateNormal];
+    [button addTarget:self action:@selector(signInButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
+    self.signInButton = button;
+    [self setSignInButtonEnabled:NO];
+    
+    [self.view addSubview:header];
+    [self.view addSubview:frame];
+    [frame addSubview:userField];
+    [frame addSubview:separator];
+    [frame addSubview:passField];
+    [self.view addSubview:button];
+    
+    [frame constrainHeight:61];
+    [userField constrainHeight:30];
+    [passField constrainHeight:30];
+    [button constrainSize:CGSizeMake(200, 30)];
+    
+    [self.view constrainChildToDefaultHorizontalInsets:header];
+    [self.view constrainChildToDefaultHorizontalInsets:frame];
+    [frame constrainChildToDefaultHorizontalInsets:userField];
+    [frame constrainChild:separator toHorizontalInsets:UIEdgeInsetsZero];
+    [frame constrainChildToDefaultHorizontalInsets:passField];
+    [button centerHorizontallyInView:self.view];
+    
+    [header constrainToTopInParentWithMargin:10];
+    [frame positionBelowElement:header margin:0];
+    [userField constrainToTopInParentWithMargin:0];
+    [passField constrainToBottomInParentWithMargin:0];
+    [separator positionBelowElement:userField margin:0];
+    [separator positionAboveElement:passField withMargin:0];
+    [button positionBelowElement:frame margin:30];
     
     UIButton *settings = [UIButton buttonWithType:UIButtonTypeSystem];
     settings.tintColor = [UIColor whiteColor];
@@ -41,41 +110,25 @@
     [settings constrainToLeftInParentWithMargin:10];
     [settings constrainToBottomInParentWithMargin:10];
     
-    [self setupSignInButton];
-}
-
-- (void)setupSignInButton
-{
-    if (self.signInButton) {
-        [self.signInButton removeFromSuperview];
-        self.signInButton = nil;
-    }
-    
-    UIButton *googleButton = [OMHClient googleSignInButton];
-    [googleButton addTarget:self action:@selector(signInButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
-    
-    [self.view addSubview:googleButton];
-    [self.view constrainChildToDefaultHorizontalInsets:googleButton];
-    [googleButton constrainToBottomInParentWithMargin:80];
-    
     [OMHClient sharedClient].signInDelegate = self;
-    self.signInButton = googleButton;
 }
 
 - (void)signInButtonPressed:(id)sender
 {
+    [[OMHClient sharedClient] signInWithUsername:self.userTextField.text
+                                        password:self.passwordTextField.text];
+    
     if (self.signInFailureLabel != nil) {
         [self.signInFailureLabel removeFromSuperview];
         self.signInFailureLabel = nil;
     }
     
-    self.signInButton.userInteractionEnabled = NO;
-    self.signInButton.alpha = 0.7;
+    [self setSignInButtonEnabled:NO];
     
     UIActivityIndicatorView *indicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
     [self.view addSubview:indicator];
     [indicator centerHorizontallyInView:self.view];
-    [indicator positionAboveElement:self.signInButton withMargin:self.signInButton.frame.size.height];
+    [indicator positionBelowElement:self.signInButton margin:30];
     [indicator startAnimating];
     self.activityIndicator = indicator;
 }
@@ -87,7 +140,7 @@
     [label sizeToFit];
     [self.view addSubview:label];
     [label centerHorizontallyInView:self.view];
-    [label positionAboveElement:self.signInButton withMargin:self.signInButton.frame.size.height];
+    [label positionBelowElement:self.signInButton margin:30];
     self.signInFailureLabel = label;
 }
 
@@ -98,18 +151,29 @@
     [self presentViewController:navcon animated:YES completion:nil];
 }
 
+- (void)setSignInButtonEnabled:(BOOL)enabled
+{
+    self.signInButton.enabled = enabled;
+    self.signInButton.alpha = enabled ? 1.0 : 0.65;
+}
+
+#pragma mark - OMHSignInDelegate
+
 - (void)OMHClient:(OMHClient *)client signInFinishedWithError:(NSError *)error
 {
     [self.activityIndicator stopAnimating];
+    [self.activityIndicator removeFromSuperview];
+    
+    [self setSignInButtonEnabled:YES];
     
     if (error != nil) {
         NSLog(@"OMHClientLoginFinishedWithError: %@", error);
-        [self setupSignInButton];
         [self presentSignInFailureMessage];
+        return;
     }
     else {
-        [[OHMModel sharedModel] clientDidLoginWithEmail:[OMHClient signedInUserEmail]];
-    
+        [[OHMModel sharedModel] clientDidLoginWithEmail:[OMHClient signedInUsername]];
+        
         if (self.presentingViewController != nil) {
             [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
         }
@@ -119,12 +183,27 @@
     }
 }
 
-- (void)OMHClientSignInCancelled:(OMHClient *)client
+#pragma mark - TextFieldDelegate
+
+- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
 {
-    [self.activityIndicator stopAnimating];
-    self.signInButton.userInteractionEnabled = YES;
-    self.signInButton.alpha = 1.0;
-    [self dismissViewControllerAnimated:YES completion:nil];
+    BOOL enable = NO;
+    if (range.location == 0) {
+        if (string.length > 0) {
+            if ([textField isEqual:self.userTextField]) {
+                enable = self.passwordTextField.text.length > 0;
+            }
+            else {
+                enable = self.userTextField.text.length > 0;
+            }
+        }
+    }
+    else {
+        enable = (self.userTextField.text.length > 0 && self.passwordTextField.text.length > 0);
+    }
+    [self setSignInButtonEnabled:enable];
+    
+    return YES;
 }
 
 @end
