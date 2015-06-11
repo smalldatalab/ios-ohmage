@@ -21,6 +21,7 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		1E0981061B29990E00C869E0 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1E0981051B29990E00C869E0 /* Security.framework */; };
 		1E1B60CA19063242001046E0 /* OHMSurvey.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E1B60BE19063242001046E0 /* OHMSurvey.m */; };
 		1E1B60CB19063242001046E0 /* OHMSurveyItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E1B60C019063242001046E0 /* OHMSurveyItem.m */; };
 		1E1B60CC19063242001046E0 /* OHMSurveyPromptChoice.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E1B60C219063242001046E0 /* OHMSurveyPromptChoice.m */; };
@@ -66,7 +67,6 @@
 		1E575C451B155C0600E7096A /* Fabric.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1E575C431B155C0600E7096A /* Fabric.framework */; };
 		1E5D6DAB1922AB9000991783 /* OHMLocationSearchViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E5D6DAA1922AB9000991783 /* OHMLocationSearchViewController.m */; };
 		1E70096418CA6F8700203990 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1E70096318CA6F8700203990 /* Foundation.framework */; };
-		1E70096618CA6F8700203990 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1E70096518CA6F8700203990 /* CoreGraphics.framework */; };
 		1E70096818CA6F8700203990 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1E70096718CA6F8700203990 /* UIKit.framework */; };
 		1E70096E18CA6F8700203990 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 1E70096C18CA6F8700203990 /* InfoPlist.strings */; };
 		1E70097018CA6F8700203990 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E70096F18CA6F8700203990 /* main.m */; };
@@ -83,13 +83,6 @@
 		1E882583191AE21E0034D231 /* OHMConditionParserDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E882582191AE21E0034D231 /* OHMConditionParserDelegate.m */; };
 		1E882586191BF7410034D231 /* NSDate+Ohmage.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E882585191BF7410034D231 /* NSDate+Ohmage.m */; };
 		1E882589191C00370034D231 /* OHMAudioRecorder.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E882588191C00370034D231 /* OHMAudioRecorder.m */; };
-		1E9081AD1926834A00A0468C /* AddressBook.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1E9081AC1926834A00A0468C /* AddressBook.framework */; };
-		1E9081AF1926835100A0468C /* AssetsLibrary.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1E9081AE1926835100A0468C /* AssetsLibrary.framework */; };
-		1E9081B11926836600A0468C /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1E9081B01926836600A0468C /* CoreMotion.framework */; };
-		1E9081B31926837400A0468C /* CoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1E9081B21926837400A0468C /* CoreText.framework */; };
-		1E9081B51926837F00A0468C /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1E9081B41926837F00A0468C /* MediaPlayer.framework */; };
-		1E9081B71926838A00A0468C /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1E9081B61926838A00A0468C /* Security.framework */; };
-		1E9081B91926839700A0468C /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1E9081B81926839700A0468C /* SystemConfiguration.framework */; };
 		1EA7645519118699007768EF /* OHMReminderViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1EA7645419118699007768EF /* OHMReminderViewController.m */; };
 		1EA764581912C941007768EF /* OHMLoginViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1EA764571912C941007768EF /* OHMLoginViewController.m */; };
 		1EAD55A518D27B4800B55028 /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1EAD55A418D27B4800B55028 /* MapKit.framework */; };
@@ -164,6 +157,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		1E0981051B29990E00C869E0 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks/Security.framework; sourceTree = DEVELOPER_DIR; };
 		1E1B60BD19063242001046E0 /* OHMSurvey.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = OHMSurvey.h; path = Model/OHMSurvey.h; sourceTree = "<group>"; };
 		1E1B60BE19063242001046E0 /* OHMSurvey.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = OHMSurvey.m; path = Model/OHMSurvey.m; sourceTree = "<group>"; };
 		1E1B60BF19063242001046E0 /* OHMSurveyItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = OHMSurveyItem.h; path = Model/OHMSurveyItem.h; sourceTree = "<group>"; };
@@ -254,7 +248,6 @@
 		1E5D6DAA1922AB9000991783 /* OHMLocationSearchViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OHMLocationSearchViewController.m; sourceTree = "<group>"; };
 		1E70096018CA6F8700203990 /* ohmage.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ohmage.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1E70096318CA6F8700203990 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
-		1E70096518CA6F8700203990 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		1E70096718CA6F8700203990 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		1E70096B18CA6F8700203990 /* ohmage_ios-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "ohmage_ios-Info.plist"; sourceTree = "<group>"; };
 		1E70096D18CA6F8700203990 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -280,13 +273,6 @@
 		1E882585191BF7410034D231 /* NSDate+Ohmage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSDate+Ohmage.m"; sourceTree = "<group>"; };
 		1E882587191C00370034D231 /* OHMAudioRecorder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OHMAudioRecorder.h; sourceTree = "<group>"; };
 		1E882588191C00370034D231 /* OHMAudioRecorder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OHMAudioRecorder.m; sourceTree = "<group>"; };
-		1E9081AC1926834A00A0468C /* AddressBook.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AddressBook.framework; path = System/Library/Frameworks/AddressBook.framework; sourceTree = SDKROOT; };
-		1E9081AE1926835100A0468C /* AssetsLibrary.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AssetsLibrary.framework; path = System/Library/Frameworks/AssetsLibrary.framework; sourceTree = SDKROOT; };
-		1E9081B01926836600A0468C /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
-		1E9081B21926837400A0468C /* CoreText.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreText.framework; path = System/Library/Frameworks/CoreText.framework; sourceTree = SDKROOT; };
-		1E9081B41926837F00A0468C /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = System/Library/Frameworks/MediaPlayer.framework; sourceTree = SDKROOT; };
-		1E9081B61926838A00A0468C /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
-		1E9081B81926839700A0468C /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		1EA7645319118699007768EF /* OHMReminderViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OHMReminderViewController.h; sourceTree = "<group>"; };
 		1EA7645419118699007768EF /* OHMReminderViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OHMReminderViewController.m; sourceTree = "<group>"; };
 		1EA764561912C941007768EF /* OHMLoginViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OHMLoginViewController.h; sourceTree = "<group>"; };
@@ -329,20 +315,13 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1E9081B91926839700A0468C /* SystemConfiguration.framework in Frameworks */,
-				1E9081B71926838A00A0468C /* Security.framework in Frameworks */,
-				1E9081B51926837F00A0468C /* MediaPlayer.framework in Frameworks */,
-				1E9081B31926837400A0468C /* CoreText.framework in Frameworks */,
-				1E9081B11926836600A0468C /* CoreMotion.framework in Frameworks */,
-				1E9081AF1926835100A0468C /* AssetsLibrary.framework in Frameworks */,
-				1E9081AD1926834A00A0468C /* AddressBook.framework in Frameworks */,
 				1E88257A1919C4C90034D231 /* libPEGKitIOS.a in Frameworks */,
 				1E56A3391913354200384AE9 /* CoreLocation.framework in Frameworks */,
 				1EAD55A718D27B4F00B55028 /* QuartzCore.framework in Frameworks */,
 				1E575C441B155C0600E7096A /* Crashlytics.framework in Frameworks */,
+				1E0981061B29990E00C869E0 /* Security.framework in Frameworks */,
 				1E575C451B155C0600E7096A /* Fabric.framework in Frameworks */,
 				1EAD55A518D27B4800B55028 /* MapKit.framework in Frameworks */,
-				1E70096618CA6F8700203990 /* CoreGraphics.framework in Frameworks */,
 				1E70096818CA6F8700203990 /* UIKit.framework in Frameworks */,
 				1E70096418CA6F8700203990 /* Foundation.framework in Frameworks */,
 			);
@@ -543,22 +522,15 @@
 		1E70096218CA6F8700203990 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				1E0981051B29990E00C869E0 /* Security.framework */,
 				1E575C421B155C0600E7096A /* Crashlytics.framework */,
 				1E575C431B155C0600E7096A /* Fabric.framework */,
-				1E9081B81926839700A0468C /* SystemConfiguration.framework */,
-				1E9081B61926838A00A0468C /* Security.framework */,
-				1E9081B41926837F00A0468C /* MediaPlayer.framework */,
-				1E9081B21926837400A0468C /* CoreText.framework */,
-				1E9081B01926836600A0468C /* CoreMotion.framework */,
-				1E9081AE1926835100A0468C /* AssetsLibrary.framework */,
-				1E9081AC1926834A00A0468C /* AddressBook.framework */,
 				1E8824F71919BF0B0034D231 /* libPEGKitIOS.a */,
 				1E8824F51919BEA30034D231 /* PEGKit.framework */,
 				1E56A3381913354200384AE9 /* CoreLocation.framework */,
 				1EAD55A618D27B4F00B55028 /* QuartzCore.framework */,
 				1EAD55A418D27B4800B55028 /* MapKit.framework */,
 				1E70096318CA6F8700203990 /* Foundation.framework */,
-				1E70096518CA6F8700203990 /* CoreGraphics.framework */,
 				1E70096718CA6F8700203990 /* UIKit.framework */,
 				1E70097C18CA6F8700203990 /* XCTest.framework */,
 			);
@@ -1076,6 +1048,7 @@
 					"/Users/cforkish/Code/Contracting/ohmage/google-plus-ios-sdk-1.5.1",
 					"$(PROJECT_DIR)/external/OMHClient/GoogleSDK",
 					"$(PROJECT_DIR)",
+					"$(DEVELOPER_DIR)/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "ohmage_ios/ohmage_ios-Prefix.pch";
@@ -1119,6 +1092,7 @@
 					"/Users/cforkish/Code/Contracting/ohmage/google-plus-ios-sdk-1.5.1",
 					"$(PROJECT_DIR)/external/OMHClient/GoogleSDK",
 					"$(PROJECT_DIR)",
+					"$(DEVELOPER_DIR)/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "ohmage_ios/ohmage_ios-Prefix.pch";
