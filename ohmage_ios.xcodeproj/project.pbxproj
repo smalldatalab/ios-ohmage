@@ -1045,10 +1045,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/external",
-					"/Users/cforkish/Code/Contracting/ohmage/google-plus-ios-sdk-1.5.1",
-					"$(PROJECT_DIR)/external/OMHClient/GoogleSDK",
 					"$(PROJECT_DIR)",
-					"$(DEVELOPER_DIR)/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "ohmage_ios/ohmage_ios-Prefix.pch";
@@ -1089,10 +1086,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/external",
-					"/Users/cforkish/Code/Contracting/ohmage/google-plus-ios-sdk-1.5.1",
-					"$(PROJECT_DIR)/external/OMHClient/GoogleSDK",
 					"$(PROJECT_DIR)",
-					"$(DEVELOPER_DIR)/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "ohmage_ios/ohmage_ios-Prefix.pch";
