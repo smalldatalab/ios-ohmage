@@ -410,11 +410,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "ohmage_ios/OHMAppDelegate.m"
-            timestampString = "454383198.588153"
+            timestampString = "456524806.817605"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "89"
-            endingLineNumber = "89"
+            startingLineNumber = "93"
+            endingLineNumber = "93"
             landmarkName = "@implementation OHMAppDelegate"
             landmarkType = "3">
          </BreakpointContent>
@@ -538,11 +538,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "ohmage_ios/OHMLoginViewController.m"
-            timestampString = "455710204.738603"
+            timestampString = "456524806.817605"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "171"
-            endingLineNumber = "171"
+            startingLineNumber = "197"
+            endingLineNumber = "197"
             landmarkName = "-OMHClient:signInFinishedWithError:"
             landmarkType = "5">
          </BreakpointContent>

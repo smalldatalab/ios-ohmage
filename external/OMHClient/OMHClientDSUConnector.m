@@ -10,6 +10,10 @@
 #import "AFHTTPSessionManager.h"
 #import "AFNetworkActivityIndicatorManager.h"
 #import "OMHDataPoint.h"
+#import "OMHApplication.h"
+
+#import <GooglePlus/GooglePlus.h>
+#import <GoogleOpenSource/GoogleOpenSource.h>
 
 #ifdef OMHDEBUG
 #   define OMHLog(fmt, ...) NSLog((@"%s " fmt), __PRETTY_FUNCTION__, ##__VA_ARGS__)
@@ -20,14 +24,17 @@
 NSString * const kDefaultDSUBaseURL = @"https://ohmage-omh.smalldata.io/dsu";
 
 NSString * const kDSUBaseURLKey = @"DSUBaseURLKey";
-NSString * const kClientIDKey = @"ClientID";
-NSString * const kClientSecretKey = @"ClientSecret";
+NSString * const kAppGoogleClientIDKey = @"AppGoogleClientID";
+NSString * const kServerGoogleClientIDKey = @"ServerGoogleClientID";
+NSString * const kAppDSUClientIDKey = @"AppDSUClientID";
+NSString * const kAppDSUClientSecretKey = @"AppDSUClientSecret";
 NSString * const kSignedInUsernameKey = @"SignedInUsername";
 
 static OMHClient *_sharedClient = nil;
+static GPPSignIn *_gppSignIn = nil;
 
 
-@interface OMHClient ()
+@interface OMHClient () <GPPSignInDelegate, UIWebViewDelegate>
 
 @property (nonatomic, strong) AFHTTPSessionManager *httpSessionManager;
 @property (nonatomic, strong) AFHTTPSessionManager *backgroundSessionManager;
@@ -47,15 +54,21 @@ static OMHClient *_sharedClient = nil;
 
 @property (nonatomic, weak) UIActivityIndicatorView *activityIndicator;
 
+@property (strong) NSTimer *saveTimer;
+
 @end
 
 @implementation OMHClient
 
-+ (void)setupClientWithClientID:(NSString *)clientID
-                   clientSecret:(NSString *)clientSecret
++ (void)setupClientWithAppGoogleClientID:(NSString *)appGooggleClientID
+                    serverGoogleClientID:(NSString *)serverGoogleClientID
+                          appDSUClientID:(NSString *)appDSUClientID
+                      appDSUClientSecret:(NSString *)appDSUClientSecret
 {
-    [self setClientID:clientID];
-    [self setClientSecret:clientSecret];
+    [self setAppGoogleClientID:appGooggleClientID];
+    [self setServerGoogleClientID:serverGoogleClientID];
+    [self setAppDSUClientID:appDSUClientID];
+    [self setAppDSUClientSecret:appDSUClientSecret];
 }
 
 + (instancetype)sharedClient
@@ -85,6 +98,7 @@ static OMHClient *_sharedClient = nil;
 + (void)releaseShared
 {
     _sharedClient = nil;
+    _gppSignIn = nil;
 }
 
 + (NSString *)archiveKeyForUsername:(NSString *)username
@@ -107,11 +121,20 @@ static OMHClient *_sharedClient = nil;
     return nil;
 }
 
+- (void)dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
 
 - (void)commonInit
 {
     OMHLog(@"common init");
     [self.httpSessionManager.reachabilityManager startMonitoring];
+    [OMHClient gppSignIn].delegate = self;
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(handleOpenGoogleAuthNotification:)
+                                                 name:ApplicationOpenGoogleAuthNotification
+                                               object:nil];
 }
 
 - (instancetype)initPrivate
@@ -172,9 +195,11 @@ static OMHClient *_sharedClient = nil;
     }
 }
 
-- (void)saveClientState
+- (void)deferredSave
 {
-    OMHLog(@"saving client state, pending: %d", (int)self.pendingDataPoints.count);
+    [self.saveTimer invalidate];
+    self.saveTimer = nil;
+    
     NSString *signedInUsername = [OMHClient signedInUsername];
     if (signedInUsername == nil) {
         OMHLog(@"attempting to save client with no signed-in user");
@@ -187,18 +212,26 @@ static OMHClient *_sharedClient = nil;
     [userDefaults synchronize];
 }
 
+- (void)saveClientState
+{
+    OMHLog(@"saving client state, pending: %d, timer: %d", (int)self.pendingDataPoints.count, self.saveTimer != nil);
+    if (self.saveTimer == nil) {
+        self.saveTimer = [NSTimer scheduledTimerWithTimeInterval:10 target:self selector:@selector(deferredSave) userInfo:nil repeats:NO];
+    }
+}
+
 - (NSString *)encodedClientIDAndSecret
 {
     static NSString *sEncodedIDAndSecret = nil;
     
     if (sEncodedIDAndSecret == nil) {
-        NSString *clientID = [OMHClient clientID];
-        NSString *clientSecret = [OMHClient clientSecret];
+        NSString *appDSUClientID = [OMHClient appDSUClientID];
+        NSString *appDSUClientSecret = [OMHClient appDSUClientSecret];
         
-        if (clientID != nil && clientSecret != nil) {
+        if (appDSUClientID != nil && appDSUClientSecret != nil) {
             NSString *string = [NSString stringWithFormat:@"%@:%@",
-                                clientID,
-                                clientSecret];
+                                appDSUClientID,
+                                appDSUClientSecret];
             
             NSData *data = [string dataUsingEncoding:NSUTF8StringEncoding];
             sEncodedIDAndSecret = [data base64EncodedStringWithOptions:0];
@@ -236,25 +269,49 @@ static OMHClient *_sharedClient = nil;
     [[self sharedClient] resetSessionManagers];
 }
 
-+ (NSString *)clientID
++ (NSString *)appGoogleClientID
 {
-    return [[NSUserDefaults standardUserDefaults] stringForKey:kClientIDKey];
+    return [[NSUserDefaults standardUserDefaults] stringForKey:kAppGoogleClientIDKey];
 }
 
-+ (void)setClientID:(NSString *)clientID
++ (void)setAppGoogleClientID:(NSString *)appGoogleClientID
 {
-    [[NSUserDefaults standardUserDefaults] setObject:clientID forKey:kClientIDKey];
+    [self gppSignIn].clientID = appGoogleClientID;
+    [[NSUserDefaults standardUserDefaults] setObject:appGoogleClientID forKey:kAppGoogleClientIDKey];
     [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
-+ (NSString *)clientSecret
++ (NSString *)serverGoogleClientID
 {
-    return [[NSUserDefaults standardUserDefaults] stringForKey:kClientSecretKey];
+    return [[NSUserDefaults standardUserDefaults] stringForKey:kServerGoogleClientIDKey];
 }
 
-+ (void)setClientSecret:(NSString *)clientSecret
++ (void)setServerGoogleClientID:(NSString *)serverGoogleClientID
 {
-    [[NSUserDefaults standardUserDefaults] setObject:clientSecret forKey:kClientSecretKey];
+    [self gppSignIn].homeServerClientID = serverGoogleClientID;
+    [[NSUserDefaults standardUserDefaults] setObject:serverGoogleClientID forKey:kServerGoogleClientIDKey];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
++ (NSString *)appDSUClientID
+{
+    return [[NSUserDefaults standardUserDefaults] stringForKey:kAppDSUClientIDKey];
+}
+
++ (void)setAppDSUClientID:(NSString *)appDSUClientID
+{
+    [[NSUserDefaults standardUserDefaults] setObject:appDSUClientID forKey:kAppDSUClientIDKey];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
++ (NSString *)appDSUClientSecret
+{
+    return [[NSUserDefaults standardUserDefaults] stringForKey:kAppDSUClientSecretKey];
+}
+
++ (void)setAppDSUClientSecret:(NSString *)appDSUClientSecret
+{
+    [[NSUserDefaults standardUserDefaults] setObject:appDSUClientSecret forKey:kAppDSUClientSecretKey];
     [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
@@ -433,13 +490,17 @@ static OMHClient *_sharedClient = nil;
     OMHLog(@"reachability status changed: %d", (int)status);
     // when network becomes reachable, re-authenticate user
     // and upload any pending survey responses
-    if (status > AFNetworkReachabilityStatusNotReachable) {
+    BOOL reachable = (status > AFNetworkReachabilityStatusNotReachable);
+    if (reachable) {
         if ([self accessTokenHasExpired] || !self.isAuthenticated) {
             [self refreshAuthenticationWithCompletionBlock:nil];
         }
         else {
             [self uploadPendingDataPoints];
         }
+    }
+    if (self.reachabilityDelegate != nil) {
+        [self.reachabilityDelegate OMHClient:self reachabilityStatusChanged:reachable];
     }
 }
 
@@ -528,7 +589,7 @@ static OMHClient *_sharedClient = nil;
 {
     __block OMHDataPoint *blockDataPoint = dataPoint;
     [self postRequest:[self dataPointsRequestString] withParameters:dataPoint completionBlock:^(id responseObject, NSError *error, NSInteger statusCode) {
-        if (error == nil || statusCode == 409) {
+        if (error == nil || statusCode == 409) { // 409 means conflict, data point already uploaded
             OMHLog(@"upload data point succeeded: %@, status code: %d", blockDataPoint.header.headerID, (int)statusCode);
             [self.pendingDataPoints removeObject:blockDataPoint];
             [self saveClientState];
@@ -649,10 +710,6 @@ static OMHClient *_sharedClient = nil;
             self.userPassword = blockPassword;
             [self unarchivePendingDataPointsForUsername:blockUsername];
         }
-        
-        if (self.signInDelegate != nil) {
-            [self.signInDelegate OMHClient:self signInFinishedWithError:error];
-        }
     }];
 }
 
@@ -668,11 +725,11 @@ static OMHClient *_sharedClient = nil;
     self.isAuthenticating = YES;
     [self postRequest:request withParameters:parameters completionBlock:^(id responseObject, NSError *error, NSInteger statusCode) {
         
-        [self authenticationCompletedWithResponse:responseObject error:error];
-        
         if (block != nil) {
             block(error);
         }
+        
+        [self authenticationCompletedWithResponse:responseObject error:error];
     }];
 }
 
@@ -725,11 +782,16 @@ static OMHClient *_sharedClient = nil;
         completionBlock(error);
     }
     [self.authRefreshCompletionBlocks removeAllObjects];
+    
+    if (self.signInDelegate != nil) {
+        [self.signInDelegate OMHClient:self signInFinishedWithError:error];
+    }
 }
 
 - (void)signOut
 {
     OMHLog(@"sign out");
+    [[OMHClient gppSignIn] signOut];
     self.userPassword = nil;
     self.dsuAccessToken = nil;
     self.dsuRefreshToken = nil;
@@ -755,6 +817,180 @@ static OMHClient *_sharedClient = nil;
     return (comp == NSOrderedAscending);
 }
 
+#pragma mark - Google Login
+
++ (UIButton *)googleSignInButton
+{
+    GPPSignInButton *googleButton = [[GPPSignInButton alloc] init];
+    googleButton.style = kGPPSignInButtonStyleWide;
+    return googleButton;
+}
+
++ (GPPSignIn *)gppSignIn
+{
+    if (_gppSignIn == nil) {
+        GPPSignIn *signIn = [GPPSignIn sharedInstance];
+        signIn.shouldFetchGooglePlusUser = YES;
+        signIn.shouldFetchGoogleUserEmail = YES;
+        
+        signIn.scopes = @[ @"profile" ];
+        _gppSignIn = signIn;
+    }
+    return _gppSignIn;
+}
+
+- (void)finishedWithAuth: (GTMOAuth2Authentication *)auth
+                   error: (NSError *) error
+{
+    OMHLog(@"Client received google error %@ and auth object %@",error, auth);
+    if (error) {
+        if (self.signInDelegate) {
+            [self.signInDelegate OMHClient:self signInFinishedWithError:error];
+        }
+    }
+    else {
+        NSString *serverCode = [GPPSignIn sharedInstance].homeServerAuthorizationCode;
+        
+        if (serverCode != nil) {
+            OMHLog(@"signed in user email: %@", auth.userEmail);
+            [OMHClient setSignedInUsername:auth.userEmail];
+            [self signInToDSUWithServerCode:serverCode];
+        }
+        else {
+            OMHLog(@"failed to receive server code from google auth");
+            [self signOut];
+            if (self.signInDelegate) {
+                NSError *serverCodeError = [NSError errorWithDomain:@"OMHClientServerCodeError" code:0 userInfo:nil];
+                [self.signInDelegate OMHClient:self signInFinishedWithError:serverCodeError];
+            }
+            
+        }
+    }
+}
+
+- (void)signInToDSUWithServerCode:(NSString *)serverCode
+{
+    NSString *appDSUClientID = [OMHClient appDSUClientID];
+    if (serverCode == nil || appDSUClientID == nil) return;
+    if (![self setDSUSignInHeader]) return;
+    
+    NSString *request =  @"google-signin";
+    NSString *code = [NSString stringWithFormat:@"fromApp_%@", serverCode];
+    NSDictionary *parameters = @{@"code": code, @"client_id" : appDSUClientID};
+    
+    self.isAuthenticating = YES;
+    [self getRequest:request withParameters:parameters completionBlock:^(id responseObject, NSError *error, NSInteger statusCode) {
+        
+        if (error == nil) {
+            [self unarchivePendingDataPointsForUsername:[OMHClient signedInUsername]];
+        }
+        else {
+            [self signOut];
+        }
+        
+        [self authenticationCompletedWithResponse:responseObject error:error];
+        
+    }];
+}
+
+- (BOOL)handleURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation
+{
+    return [GPPURLHandler handleURL:url
+                  sourceApplication:sourceApplication
+                         annotation:annotation];
+}
+
+
+
+#pragma mark - Google Sign In Web View
+
+- (void)handleOpenGoogleAuthNotification:(NSNotification *)notification
+{
+    NSURL *url = (NSURL *)notification.object;
+    if (url == nil || self.signInDelegate == nil) return;
+    
+    UIWebView *webview = [[UIWebView alloc] init];
+    webview.delegate = self;
+    [webview loadRequest:[NSURLRequest requestWithURL:url]];
+    
+    UIActivityIndicatorView *activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+    [webview addSubview:activityIndicator];
+    [self centerViewInParent:activityIndicator];
+    [activityIndicator startAnimating];
+    self.activityIndicator = activityIndicator;
+    
+    UIViewController *vc = [[UIViewController alloc] init];
+    vc.view = webview;
+    vc.title = @"Sign In";
+    UIBarButtonItem *cancelButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
+                                                                                  target:self
+                                                                                  action:@selector(signInCancelButtonPressed)];
+    vc.navigationItem.leftBarButtonItem = cancelButton;
+    
+    UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:vc];
+    [self.signInDelegate presentViewController:nav animated:YES completion:nil];
+}
+
+- (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
+{
+    NSURL *url = [request URL];
+    NSString *bundleID = [[NSBundle mainBundle].bundleIdentifier lowercaseString];
+    NSString *appPrefix = [bundleID stringByAppendingString:@":/oauth2callback"];
+    if ([[url absoluteString] hasPrefix:appPrefix]) {
+        [GPPURLHandler handleURL:url sourceApplication:@"com.google.chrome.ios" annotation:nil];
+        
+        // Looks like we did log in (onhand of the url), we are logged in, the Google APi handles the rest
+        if (self.signInDelegate != nil) {
+            [self.signInDelegate dismissViewControllerAnimated:YES completion:nil];
+        }
+        return NO;
+    }
+    return YES;
+}
+
+- (void)webViewDidFinishLoad:(UIWebView *)webView
+{
+    [self.activityIndicator removeFromSuperview];
+    self.activityIndicator = nil;
+}
+
+- (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error
+{
+    if (self.signInDelegate != nil) {
+        [self.signInDelegate dismissViewControllerAnimated:YES completion:^{
+            [self.signInDelegate OMHClient:self signInFinishedWithError:error];
+        }];
+    }
+}
+
+- (void)signInCancelButtonPressed
+{
+    if (self.signInDelegate != nil) {
+        [self.signInDelegate OMHClientSignInCancelled:self];
+    }
+}
+
+#pragma mark - Layout Helpers
+
+- (void)centerViewInParent:(UIView *)aView
+{
+    UIView *parent = aView.superview;
+    if (parent == nil) return;
+    
+    aView.translatesAutoresizingMaskIntoConstraints = NO;
+    
+    [parent addConstraint:[NSLayoutConstraint
+                           constraintWithItem:aView attribute:NSLayoutAttributeCenterX
+                           relatedBy:NSLayoutRelationEqual
+                           toItem:parent attribute:NSLayoutAttributeCenterX
+                           multiplier:1.0f constant:0.0f]];
+    
+    [parent addConstraint:[NSLayoutConstraint
+                           constraintWithItem:aView attribute:NSLayoutAttributeCenterY
+                           relatedBy:NSLayoutRelationEqual
+                           toItem:parent attribute:NSLayoutAttributeCenterY
+                           multiplier:1.0f constant:0.0f]];
+}
 
 @end
 

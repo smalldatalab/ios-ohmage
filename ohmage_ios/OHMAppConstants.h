@@ -9,6 +9,8 @@
 #import <Foundation/Foundation.h>
 
 
+//extern NSString * const kOhmageGoogleClientID;
+extern NSString * const kOMHServerGoogleClientID;
 extern NSString * const kOhmageDSUClientID;
 extern NSString * const kOhmageDSUClientSecret;
 
@@ -31,6 +33,8 @@ extern double const kMinLocationRadius;
 extern double const kMaxLocationRadius;
 
 @interface OHMAppConstants : NSObject
+
++ (NSString *)ohmageGoogleClientID;
 
 // colors
 + (UIColor *)colorForSurveyIndex:(NSInteger)rowIndex;

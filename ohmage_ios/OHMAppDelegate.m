@@ -32,7 +32,11 @@
     
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     
-    [OMHClient setupClientWithClientID:kOhmageDSUClientID clientSecret:kOhmageDSUClientSecret];
+    
+    [OMHClient setupClientWithAppGoogleClientID:[OHMAppConstants ohmageGoogleClientID]
+                           serverGoogleClientID:kOMHServerGoogleClientID
+                                 appDSUClientID:kOhmageDSUClientID
+                             appDSUClientSecret:kOhmageDSUClientSecret];
     
 //#ifdef OMHDEBUG
 //    [OMHClient setDSUBaseURL:@"https://lifestreams.smalldata.io/dsu"];
@@ -131,6 +135,16 @@
 
 
 #pragma mark - Login
+
+- (BOOL)application: (UIApplication *)application
+            openURL: (NSURL *)url
+  sourceApplication: (NSString *)sourceApplication
+         annotation: (id)annotation {
+    NSLog(@"openURL: %@, source: %@, annotation: %@", url, sourceApplication, annotation);
+    return [[OMHClient sharedClient] handleURL:url
+                             sourceApplication:sourceApplication
+                                    annotation:annotation];
+}
 
 - (void)userDidLogin
 {

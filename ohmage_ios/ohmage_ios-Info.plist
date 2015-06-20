@@ -9,7 +9,7 @@
 	<key>CFBundleExecutable</key>
 	<string>${EXECUTABLE_NAME}</string>
 	<key>CFBundleIdentifier</key>
-	<string>io.smalldatalab.ohmage</string>
+	<string>io.smalldatalab.ohmage-internal</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
@@ -26,15 +26,15 @@
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>CFBundleURLName</key>
-			<string>io.smalldatalab.ohmage</string>
+			<string>io.smalldatalab.ohmage-internal</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>io.smalldatalab.ohmage</string>
+				<string>io.smalldatalab.ohmage-internal</string>
 			</array>
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>10</string>
+	<string>2</string>
 	<key>Fabric</key>
 	<dict>
 		<key>APIKey</key>
@@ -53,6 +53,8 @@
 	<true/>
 	<key>NSLocationAlwaysUsageDescription</key>
 	<string>Ohmage needs permission to always use your location in order to provide location-based reminders.</string>
+	<key>NSPrincipalClass</key>
+	<string>OMHApplication</string>
 	<key>UIRequiredDeviceCapabilities</key>
 	<array>
 		<string>armv7</string>

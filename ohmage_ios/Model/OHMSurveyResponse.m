@@ -108,8 +108,9 @@
 {
     static OMHAcquisitionProvenance *sProvenance = nil;
     if (!sProvenance) {
+        NSString *version = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
         sProvenance = [[OMHAcquisitionProvenance alloc] init];
-        sProvenance.sourceName = @"Ohmage-iOS-1.0";
+        sProvenance.sourceName = [NSString stringWithFormat:@"Ohmage-iOS-%@", version];
         sProvenance.modality = OMHAcquisitionProvenanceModalitySelfReported;
     }
     return sProvenance;

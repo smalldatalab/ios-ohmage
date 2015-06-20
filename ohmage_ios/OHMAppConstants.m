@@ -9,6 +9,8 @@
 #import "OHMAppConstants.h"
 #import "UIColor+Ohmage.h"
 
+//NSString * const kOhmageGoogleClientID = @"48636836762-detevr4602jd0isb7evsrniklh7q9e6m.apps.googleusercontent.com";
+NSString * const kOMHServerGoogleClientID = @"48636836762-mulldgpmet2r4s3f16s931ea9crcc64m.apps.googleusercontent.com";
 NSString * const kOhmageDSUClientID = @"org.openmhealth.ios.ohmage";
 NSString * const kOhmageDSUClientSecret = @"Rtg43jkLD7z76c";
 
@@ -35,6 +37,19 @@ double const kMinLocationRadius = 5.0;
 double const kMaxLocationRadius = 500.0;
 
 @implementation OHMAppConstants
+
++ (NSString *)ohmageGoogleClientID
+{
+    NSString *bundleID = [NSBundle mainBundle].bundleIdentifier;
+    if ([bundleID isEqualToString:@"io.smalldatalab.ohmage"]) {
+        return @"48636836762-detevr4602jd0isb7evsrniklh7q9e6m.apps.googleusercontent.com";
+    }
+    else if ([bundleID isEqualToString:@"io.smalldatalab.ohmage-internal"]) {
+        return @"48636836762-g2k74kj3qoj2chqo4or7j8dif23u5roc.apps.googleusercontent.com";
+    }
+    
+    return nil;
+}
 
 + (UIColor *)colorForSurveyIndex:(NSInteger)rowIndex
 {
