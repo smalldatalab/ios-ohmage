@@ -187,9 +187,11 @@ static const NSInteger kSurveyResponsesSectionIndex = 1;
     if ([[self.fetchedSurveyResponsesController fetchedObjects] count]) {
         OHMSurveyResponse *response = [self.fetchedSurveyResponsesController objectAtIndexPath:[NSIndexPath indexPathForRow:row inSection:0]];
         cell.textLabel.text = [OHMUserInterface formattedDate:response.timestamp];
+        cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
     }
     else {
         cell.textLabel.text = @"No responses logged yet.";
+        cell.accessoryType = UITableViewCellAccessoryNone;
     }
 }
 
@@ -202,6 +204,7 @@ static const NSInteger kSurveyResponsesSectionIndex = 1;
             if (indexPath.row == 0) {
                 cell = [OHMUserInterface cellWithDefaultStyleFromTableView:tableView];
                 cell.textLabel.text = @"Add reminder";
+                cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
             }
             else {
                 OHMReminder *reminder = [self.fetchedRemindersController objectAtIndexPath:[NSIndexPath indexPathForRow:indexPath.row - 1 inSection:0]];
@@ -211,6 +214,7 @@ static const NSInteger kSurveyResponsesSectionIndex = 1;
                 }];
                 cell.textLabel.text = [reminder labelText];
                 cell.detailTextLabel.text = [reminder detailLabelText];
+                cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
             }
             break;
         case kSurveyResponsesSectionIndex:
@@ -221,7 +225,6 @@ static const NSInteger kSurveyResponsesSectionIndex = 1;
             break;
     }
     
-    cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
     return cell;
 }
 
@@ -265,6 +268,8 @@ static const NSInteger kSurveyResponsesSectionIndex = 1;
 
 - (void)didSelectSurveyResponseCellAtRow:(NSInteger)row
 {
+    if (self.fetchedSurveyResponsesController.fetchedObjects.count == 0) return;
+    
     OHMSurveyResponse *response = [self.fetchedSurveyResponsesController objectAtIndexPath:[NSIndexPath indexPathForRow:row inSection:0]];
     OHMSurveyResponseViewController *vc = [[OHMSurveyResponseViewController alloc] initWithSurveyResponse:response];
     [self.navigationController pushViewController:vc animated:YES];
