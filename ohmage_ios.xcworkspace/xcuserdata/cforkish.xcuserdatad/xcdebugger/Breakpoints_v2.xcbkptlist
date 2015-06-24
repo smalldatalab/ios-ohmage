@@ -351,7 +351,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "628"
             endingLineNumber = "628"
-            landmarkName = "-submitUploadRequest:forRichMediaDataPoint:"
+            landmarkName = "-uploadRichMediaDataPoint:"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
@@ -383,7 +383,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "392"
             endingLineNumber = "392"
-            landmarkName = "-postRequest:withParameters:completionBlock:"
+            landmarkName = "-backgroundSessionManager"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
@@ -559,7 +559,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "744"
             endingLineNumber = "744"
-            landmarkName = "-storeAuthenticationResponse:"
+            landmarkName = "-refreshAuthenticationWithCompletionBlock:"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
