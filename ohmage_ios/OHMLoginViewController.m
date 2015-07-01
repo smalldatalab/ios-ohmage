@@ -12,7 +12,7 @@
 #import "OHMModel.h"
 #import "DSUURLViewController.h"
 
-@interface OHMLoginViewController () <OMHSignInDelegate, UITextFieldDelegate>
+@interface OHMLoginViewController () <OMHSignInDelegate>
 
 @property (nonatomic, strong) UITextField *userTextField;
 @property (nonatomic, strong) UITextField *passwordTextField;

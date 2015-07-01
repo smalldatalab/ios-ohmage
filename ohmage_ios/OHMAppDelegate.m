@@ -17,7 +17,7 @@
 #import <Fabric/Fabric.h>
 #import <Crashlytics/Crashlytics.h>
 
-@interface OHMAppDelegate ()
+@interface OHMAppDelegate () <OMHSignInDelegate>
 
 @property (nonatomic, strong) OHMLoginViewController *loginViewController;
 @property (nonatomic, strong) UINavigationController *navigationController;
@@ -49,6 +49,7 @@
     }
     else {
         self.window.rootViewController = self.navigationController;
+        [OMHClient sharedClient].signInDelegate = self;
         
         // handle reminder notification
         UILocalNotification *notification = [launchOptions objectForKey:UIApplicationLaunchOptionsLocalNotificationKey];
@@ -174,5 +175,19 @@
         self.navigationController = nil;
     }];
 }
+
+
+#pragma mark - OMHSignInDelegate
+
+- (void)OMHClient:(OMHClient *)client signInFinishedWithError:(NSError *)error
+{
+    if (error != nil) {
+        [self userDidLogout];
+    }
+}
+
+- (void)OMHClientSignInCancelled:(OMHClient *)client {}
+- (void)presentViewController:(UIViewController *)viewControllerToPresent animated:(BOOL)flag completion:(void (^)(void))completion {}
+- (void)dismissViewControllerAnimated:(BOOL)flag completion:(void (^)(void))completion {}
 
 @end
