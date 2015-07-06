@@ -410,11 +410,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "ohmage_ios/OHMAppDelegate.m"
-            timestampString = "457482007.283695"
+            timestampString = "457896827.400938"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "94"
-            endingLineNumber = "94"
+            startingLineNumber = "93"
+            endingLineNumber = "93"
             landmarkName = "@implementation OHMAppDelegate"
             landmarkType = "3">
          </BreakpointContent>

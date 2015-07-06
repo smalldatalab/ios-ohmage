@@ -10,7 +10,6 @@
 
 
 //extern NSString * const kOhmageGoogleClientID;
-extern NSString * const kOMHServerGoogleClientID;
 extern NSString * const kOhmageDSUClientID;
 extern NSString * const kOhmageDSUClientSecret;
 

@@ -34,7 +34,6 @@
     
     
     [OMHClient setupClientWithAppGoogleClientID:[OHMAppConstants ohmageGoogleClientID]
-                           serverGoogleClientID:kOMHServerGoogleClientID
                                  appDSUClientID:kOhmageDSUClientID
                              appDSUClientSecret:kOhmageDSUClientSecret];
     
