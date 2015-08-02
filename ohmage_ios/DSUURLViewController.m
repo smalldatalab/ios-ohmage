@@ -83,7 +83,7 @@
 - (void)resetURL
 {
     self.textField.text = [OMHClient defaultDSUBaseURL];
-    self.navigationItem.rightBarButtonItem.enabled = YES;
+    [self updateButtonStates];
 }
 
 - (void)doneButtonPressed:(id)sender
@@ -106,22 +106,32 @@
     [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
 }
 
-- (void)textFieldDidEndEditing:(UITextField *)textField
+
+#pragma mark - TextFieldDelegate
+
+- (void)updateButtonStates
 {
-    if (textField.text.length > 0) {
-        if (![textField.text isEqualToString:[OMHClient DSUBaseURL]]) {
-            self.navigationItem.rightBarButtonItem.enabled = YES;
-        }
-        if ([textField.text isEqualToString:[OMHClient defaultDSUBaseURL]]) {
-            self.resetButton.enabled = NO;
-        }
-        else {
-            self.resetButton.enabled = YES;
-        }
+    self.navigationItem.rightBarButtonItem.enabled = ![self.textField.text isEqualToString:[OMHClient DSUBaseURL]];
+    if ([self.textField.text isEqualToString:[OMHClient defaultDSUBaseURL]]) {
+        self.resetButton.enabled = NO;
     }
     else {
+        self.resetButton.enabled = YES;
+    }
+}
+
+- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
+{
+    [self performSelector:@selector(updateButtonStates) withObject:nil afterDelay:0.01];
+    return YES;
+}
+
+- (void)textFieldDidEndEditing:(UITextField *)textField
+{
+    if (textField.text.length == 0) {
         textField.text = [OMHClient DSUBaseURL];
     }
+    [self updateButtonStates];
 }
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField

@@ -7,7 +7,8 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "OHMBaseViewController.h"
 
-@interface DSUURLViewController : UIViewController
+@interface DSUURLViewController : OHMBaseViewController
 
 @end

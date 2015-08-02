@@ -270,7 +270,7 @@ UIImagePickerControllerDelegate, OHMAudioRecorderDelegate>
     self.toolbar = toolbar;
     
     NSMutableArray *barItems = [NSMutableArray array];
-    UIBarButtonItem *backButton = [[UIBarButtonItem alloc] initWithTitle:@"Back" style:UIBarButtonItemStylePlain target:self action:@selector(backButtonPressed:)];
+    UIBarButtonItem *backButton = [[UIBarButtonItem alloc] initWithTitle:@"Previous" style:UIBarButtonItemStylePlain target:self action:@selector(backButtonPressed:)];
     backButton.enabled = (self.itemIndex > 0);
     [barItems addObject:backButton];
     [barItems addObject:[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil]];
@@ -283,7 +283,7 @@ UIImagePickerControllerDelegate, OHMAudioRecorderDelegate>
         self.skipButton = skipButton;
     }
     
-    UIBarButtonItem *nextButton = [[UIBarButtonItem alloc] initWithTitle:@"OK" style:UIBarButtonItemStylePlain target:self action:@selector(nextButtonPressed:)];
+    UIBarButtonItem *nextButton = [[UIBarButtonItem alloc] initWithTitle:@"Next" style:UIBarButtonItemStylePlain target:self action:@selector(nextButtonPressed:)];
     [barItems addObject:nextButton];
     self.nextButton = nextButton;
     

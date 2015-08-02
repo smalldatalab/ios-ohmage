@@ -86,7 +86,7 @@
     [headerView addSubview:versionLabel];
     
     [nameLabel centerHorizontallyInView:headerView];
-    [versionLabel centerFrameHorizontallyInView:headerView];
+    [versionLabel centerHorizontallyInView:headerView];
     
     [nameLabel constrainToTopInParentWithMargin:kUIViewVerticalMargin];
     [versionLabel positionBelowElement:nameLabel margin:kUIViewSmallTextMargin];

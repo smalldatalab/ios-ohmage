@@ -351,7 +351,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "628"
             endingLineNumber = "628"
-            landmarkName = "-uploadRichMediaDataPoint:"
+            landmarkName = "-buildResponseBodyForRichMediaDataPoint:formData:"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
@@ -383,7 +383,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "392"
             endingLineNumber = "392"
-            landmarkName = "-backgroundSessionManager"
+            landmarkName = "-resetSessionManagers"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
