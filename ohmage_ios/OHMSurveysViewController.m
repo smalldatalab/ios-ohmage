@@ -16,6 +16,8 @@
 #import "OHMSurvey.h"
 #import "OHMReminder.h"
 
+#import "OMHClient+Logging.h"
+
 @interface OHMSurveysViewController () <OHMModelDelegate, NSFetchedResultsControllerDelegate>
 
 @property (nonatomic, weak) OHMModel *model;
@@ -131,6 +133,10 @@
     OHMSurveyResponse *newResponse = [[OHMModel sharedModel] buildResponseForSurvey:survey];
     OHMSurveyItemViewController *vc = [[OHMSurveyItemViewController alloc] initWithSurveyResponse:newResponse atQuestionIndex:0];
     [self.navigationController pushViewController:vc animated:animated];
+    
+    [[OMHClient sharedClient] logInfoEvent:@"SurveyStarted"
+                                   message:[NSString stringWithFormat:@"User started the survey: %@",
+                                            survey.surveyName]];
 }
 
 - (void)handleSurveyReminderNotification:(UILocalNotification *)notification

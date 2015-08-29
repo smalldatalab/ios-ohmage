@@ -19,6 +19,8 @@
 #import <AVFoundation/AVFoundation.h>
 #import <MobileCoreServices/MobileCoreServices.h>
 
+#import "OMHClient+Logging.h"
+
 #define MIN_NUMBERPICKER_VALUE -9999
 #define MAX_NUMBERPICKER_VALUE 9999
 
@@ -65,8 +67,14 @@ UIImagePickerControllerDelegate, OHMAudioRecorderDelegate>
         self.promptResponse = self.surveyResponse.promptResponses[self.itemIndex];
         self.item = self.promptResponse.surveyItem;
         
+        [self registerForNotifications];
     }
     return self;
+}
+
+- (void)dealloc
+{
+    [self unregisterForNotifications];
 }
 
 - (void)loadView
@@ -464,6 +472,10 @@ UIImagePickerControllerDelegate, OHMAudioRecorderDelegate>
 
 - (void)cancelSurveyButtonPressed:(id)sender
 {
+    [[OMHClient sharedClient] logInfoEvent:@"SurveyDiscarded"
+                                   message:[NSString stringWithFormat:@"User discarded the survey: %@",
+                                            self.surveyResponse.survey.surveyName]];
+    
     [[OHMModel sharedModel] deleteObject:self.surveyResponse];
     UIViewController *vc = [self.navigationController.viewControllers objectAtIndex:1];
     if ([vc isMemberOfClass:[OHMSurveyDetailViewController class]]) {
@@ -978,6 +990,38 @@ UIImagePickerControllerDelegate, OHMAudioRecorderDelegate>
     NSDate *combDate = [gregorian dateFromComponents:dateComponents];
     
     return combDate;
+}
+
+#pragma mark - App Lifecycle
+
+
+
+- (void)registerForNotifications
+{
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didEnterBackground) name:UIApplicationDidEnterBackgroundNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(willEnterForeground) name:UIApplicationWillEnterForegroundNotification object:nil];
+}
+
+- (void)unregisterForNotifications
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidEnterBackgroundNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillEnterForegroundNotification object:nil];
+}
+
+- (void)didEnterBackground
+{
+    [[OMHClient sharedClient] logInfoEvent:@"SurveyStopped"
+                                   message:[NSString stringWithFormat:@"User left survey without submitting or discarding: %@ (ID: %@)",
+                                            self.surveyResponse.survey.surveyName,
+                                            self.surveyResponse.uuid]];
+}
+
+- (void)willEnterForeground
+{
+    [[OMHClient sharedClient] logInfoEvent:@"SurveyResumed"
+                                   message:[NSString stringWithFormat:@"User resumed the survey: %@ (ID: %@)",
+                                            self.surveyResponse.survey.surveyName,
+                                            self.surveyResponse.uuid]];
 }
 
 @end

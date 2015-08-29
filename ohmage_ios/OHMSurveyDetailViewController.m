@@ -14,6 +14,8 @@
 #import "OHMSurveyResponse.h"
 #import "OHMReminder.h"
 
+#import "OMHClient+Logging.h"
+
 static const NSInteger kRemindersSectionIndex = 0;
 static const NSInteger kSurveyResponsesSectionIndex = 1;
 
@@ -153,6 +155,10 @@ static const NSInteger kSurveyResponsesSectionIndex = 1;
     OHMSurveyResponse *newResponse = [[OHMModel sharedModel] buildResponseForSurvey:self.survey];
     OHMSurveyItemViewController *vc = [[OHMSurveyItemViewController alloc] initWithSurveyResponse:newResponse atQuestionIndex:0];
     [self.navigationController pushViewController:vc animated:YES];
+    
+    [[OMHClient sharedClient] logInfoEvent:@"SurveyStarted"
+                                   message:[NSString stringWithFormat:@"User started the survey: %@",
+                                            self.survey.surveyName]];
 }
 
 

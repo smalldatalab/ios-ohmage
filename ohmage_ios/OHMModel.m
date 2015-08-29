@@ -24,13 +24,13 @@
 #import "OHMLocationManager.h"
 #import "OHMReminderManager.h"
 
-#import "OMHClient.h"
+#import "OMHClient+Logging.h"
 
 
 static NSString * const kResponseErrorStringKey = @"ResponseErrorString";
 
 
-@interface OHMModel ()
+@interface OHMModel () <OMHUploadDelegate>
 
 // Core Data
 @property(nonatomic, copy) NSURL *persistentStoreURL;
@@ -78,6 +78,7 @@ static NSString * const kResponseErrorStringKey = @"ResponseErrorString";
         if (userEmail != nil) {
             self.user = [self userWithEmail:userEmail];
         }
+        [OMHClient sharedClient].uploadDelegate = self;
     }
     return self;
 }
@@ -195,6 +196,10 @@ static NSString * const kResponseErrorStringKey = @"ResponseErrorString";
         [self saveModelState];
     }
     
+    [[OMHClient sharedClient] logInfoEvent:@"SurveySubmitted"
+                                   message:[NSString stringWithFormat:@"User submitted the survey: %@ (ID: %@)",
+                                            surveyResponse.survey.surveyName,
+                                            surveyResponse.uuid]];
 }
 
 - (void)submitSurveyResponse:(OHMSurveyResponse *)surveyResponse withLocation:(CLLocation *)location
@@ -730,11 +735,11 @@ static NSString * const kResponseErrorStringKey = @"ResponseErrorString";
 /**
  *  pendingSurveyResponses
  */
-- (NSArray *)pendingSurveyResponses
-{
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"userSubmitted == YES AND submissionConfirmed == NO"];
-    return [self fetchManagedObjectsWithEntityName:[OHMSurveyResponse entityName] predicate:predicate sortDescriptors:nil fetchLimit:0];
-}
+//- (NSArray *)pendingSurveyResponses
+//{
+//    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"userSubmitted == YES AND submissionConfirmed == NO"];
+//    return [self fetchManagedObjectsWithEntityName:[OHMSurveyResponse entityName] predicate:predicate sortDescriptors:nil fetchLimit:0];
+//}
 
 /**
  *  userWithOhmID
@@ -1010,6 +1015,54 @@ static NSString * const kResponseErrorStringKey = @"ResponseErrorString";
     }
     
     return fetchedResultsController;
+}
+
+#pragma mark - OMHUploadDelegate
+
+- (void)OMHClient:(OMHClient *)client dataPointUploadBegan:(NSDictionary *)dataPoint
+{
+    OHMSurveyResponse *response = [self surveyResponseForDataPoint:dataPoint];
+    if (response) {
+        NSLog(@"survey upload began: %@", response);
+        [client logInfoEvent:@"SurveyUploadBegan"
+                      message:[NSString stringWithFormat:@"Upload began for survey: %@ (ID: %@)",
+                               response.survey.surveyName,
+                               response.uuid]];
+    }
+}
+
+- (void)OMHClient:(OMHClient *)client dataPointUploadSucceeded:(NSDictionary *)dataPoint
+{
+    OHMSurveyResponse *response = [self surveyResponseForDataPoint:dataPoint];
+    if (response) {
+        response.submissionConfirmed = @(YES);
+        [self saveManagedContext];
+        NSLog(@"survey submission confirmed: %@", response);
+        
+        [client logInfoEvent:@"SurveyUploadSucceeded"
+                     message:[NSString stringWithFormat:@"Upload succeeded for survey: %@ (ID: %@)",
+                              response.survey.surveyName,
+                              response.uuid]];
+    }
+}
+
+- (void)OMHClient:(OMHClient *)client dataPointUploadFailed:(NSDictionary *)dataPoint
+{
+    OHMSurveyResponse *response = [self surveyResponseForDataPoint:dataPoint];
+    if (response) {
+        NSLog(@"survey upload failed: %@", response);
+        [client logErrorEvent:@"SurveyUploadFailed"
+                      message:[NSString stringWithFormat:@"Upload failed for survey: %@ (ID: %@)",
+                               response.survey.surveyName,
+                               response.uuid]];
+    }
+}
+
+- (OHMSurveyResponse *)surveyResponseForDataPoint:(NSDictionary *)dataPoint
+{
+    NSString *uuid = ((OMHDataPoint *)dataPoint).header.headerID;
+    if (uuid == nil) return nil;
+    return (OHMSurveyResponse *)[self fetchObjectForEntityName:[OHMSurveyResponse entityName] withUUID:uuid create:NO];
 }
 
 @end

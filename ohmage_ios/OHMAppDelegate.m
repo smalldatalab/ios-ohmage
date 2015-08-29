@@ -12,7 +12,7 @@
 #import "OHMReminderManager.h"
 #import "OHMLocationManager.h"
 
-#import "OMHClient.h"
+#import "OMHClient+Logging.h"
 
 #import <Fabric/Fabric.h>
 #import <Crashlytics/Crashlytics.h>
@@ -36,6 +36,7 @@
     [OMHClient setupClientWithAppGoogleClientID:[OHMAppConstants ohmageGoogleClientID]
                                  appDSUClientID:kOhmageDSUClientID
                              appDSUClientSecret:kOhmageDSUClientSecret];
+    [[OMHClient sharedClient] enableReachabilityLogging];
     
 //#ifdef OMHDEBUG
 //    [OMHClient setDSUBaseURL:@"https://lifestreams.smalldata.io/dsu"];
@@ -113,6 +114,12 @@
 - (void)applicationDidBecomeActive:(UIApplication *)application
 {
     [[OHMReminderManager sharedReminderManager] synchronizeReminders];
+    [[OMHClient sharedClient] logInfoEvent:@"AppBecameActive" message:@"The application has become active."];
+}
+
+- (void)applicationWillEnterForeground:(UIApplication *)application
+{
+    
 }
 
 - (OHMLoginViewController *)loginViewController
