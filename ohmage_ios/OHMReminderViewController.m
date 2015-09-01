@@ -21,8 +21,6 @@
 static NSString * const kAlwaysShowCellTitle = @"Always show reminder";
 static NSString * const kAlwaysShowCellSubtitle = @"Show reminder at end time if location isn't reached";
 
-static NSString * const kHasRequestedPermissionKey = @"HAS_REQUESTED_PERMISSION";
-
 typedef NS_ENUM(NSUInteger, RowIndex) {
     eRowIndexTimeOrLocation = 0,
     eRowIndexRangeEnable,
@@ -589,47 +587,7 @@ typedef NS_ENUM(NSUInteger, RowIndex) {
 }
 
 
-#pragma mark - iOS 8 Notification Permission
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 80000
 
-- (void)requestNotificationPermissions
-{
-    UIUserNotificationSettings *settings = [UIApplication sharedApplication].currentUserNotificationSettings;
-    NSLog(@"settings: %@", settings);
-    if ((settings.types & UIUserNotificationTypeAlert)) return;
-    
-    NSString *title;
-    NSString *message;
-    BOOL hasRequested = [[NSUserDefaults standardUserDefaults] boolForKey:kHasRequestedPermissionKey];
-    
-    if (!hasRequested) {
-        title = @"Reminder Permissions";
-        message = @"To deliver reminders, Ohmage needs permission to display notifications. Please allow notifications for Ohmage.";
-        [[NSUserDefaults standardUserDefaults] setBool:YES forKey:kHasRequestedPermissionKey];
-    }
-    else {
-        title = @"Insufficient Permissions";
-        message = @"To deliver reminders, Ohmage needs permission to display notifications. Please enable notifications for Ohmage in your device settings.";
-        
-    }
-    
-    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:title
-                                                    message:message
-                                                   delegate:nil
-                                          cancelButtonTitle:@"OK"
-                                          otherButtonTitles:nil];
-    alert.delegate = self;
-    [alert show];
-}
-
-- (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex
-{
-    NSLog(@"alert view did dismiss");
-    UIUserNotificationSettings *settings = [UIUserNotificationSettings settingsForTypes:UIUserNotificationTypeAlert | UIUserNotificationTypeSound categories:nil];
-    [[UIApplication sharedApplication] registerUserNotificationSettings:settings];
-}
-
-#endif
 
 @end

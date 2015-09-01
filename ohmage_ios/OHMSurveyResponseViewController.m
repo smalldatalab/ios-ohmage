@@ -14,7 +14,9 @@
 #import "OHMSurveyPromptResponse.h"
 #import "OHMSurveyItem.h"
 #import "OHMSurveyPromptChoice.h"
+#import "OHMReminderManager.h"
 
+#import "OMHClient+Logging.h"
 
 @interface OHMSurveyResponseViewController ()
 
@@ -31,8 +33,16 @@
     self = [super initWithStyle:UITableViewStylePlain];
     if (self) {
         self.response = response;
+        if (!response.userSubmittedValue) {
+            [self registerForNotifications];
+        }
     }
     return self;
+}
+
+- (void)dealloc
+{
+    [self unregisterForNotifications];
 }
 
 - (void)viewDidLoad
@@ -220,6 +230,43 @@
     UINavigationController *navCon = [[UINavigationController alloc] initWithRootViewController:vc];
     [self presentViewController:navCon animated:YES completion:nil];
     
+}
+
+
+#pragma mark - App Lifecycle
+
+- (void)registerForNotifications
+{
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didEnterBackground) name:UIApplicationDidEnterBackgroundNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(willEnterForeground) name:UIApplicationWillEnterForegroundNotification object:nil];
+}
+
+- (void)unregisterForNotifications
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidEnterBackgroundNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillEnterForegroundNotification object:nil];
+}
+
+- (void)didEnterBackground
+{
+    [[OMHClient sharedClient] logInfoEvent:@"SurveyStopped"
+                                   message:[NSString stringWithFormat:@"User left survey without submitting or discarding: %@ (ID: %@)",
+                                            self.response.survey.surveyName,
+                                            self.response.uuid]];
+    [[OHMReminderManager sharedReminderManager] presentSubmitSurveyNotification:self.response];
+}
+
+- (void)willEnterForeground
+{
+    if (self.response.userSubmittedValue && self.tableView.tableFooterView != nil) {
+        [self.navigationController popToRootViewControllerAnimated:NO];
+    }
+    else {
+        [[OMHClient sharedClient] logInfoEvent:@"SurveyResumed"
+                                       message:[NSString stringWithFormat:@"User resumed the survey: %@ (ID: %@)",
+                                                self.response.survey.surveyName,
+                                                self.response.uuid]];
+    }
 }
 
 @end

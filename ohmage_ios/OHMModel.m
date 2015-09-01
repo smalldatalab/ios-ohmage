@@ -202,6 +202,18 @@ static NSString * const kResponseErrorStringKey = @"ResponseErrorString";
                                             surveyResponse.uuid]];
 }
 
+- (void)submitSurveyResponseWithUUID:(NSString *)uuid
+{
+    NSLog(@"submit survey response with UUID: %@", uuid);
+    OHMSurveyResponse *response = (OHMSurveyResponse *)[self fetchObjectForEntityName:@"OHMSurveyResponse" withUUID:uuid create:NO];
+    if (response) {
+        [self submitSurveyResponse:response];
+    }
+    else {
+        NSLog(@"failed to fetch survey response with UUID: %@", uuid);
+    }
+}
+
 - (void)submitSurveyResponse:(OHMSurveyResponse *)surveyResponse withLocation:(CLLocation *)location
 {
     NSLog(@"submitting survey response with location: %@", location);

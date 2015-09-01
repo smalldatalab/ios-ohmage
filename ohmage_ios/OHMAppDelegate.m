@@ -50,6 +50,7 @@
     else {
         self.window.rootViewController = self.navigationController;
         [OMHClient sharedClient].signInDelegate = self;
+        [[OMHClient sharedClient] logInfoEvent:@"AppLaunched" message:@"The application has been launched."];
         
         // handle reminder notification
         UILocalNotification *notification = [launchOptions objectForKey:UIApplicationLaunchOptionsLocalNotificationKey];
@@ -71,6 +72,8 @@
  */
 - (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification {
     
+    if (notification.category != nil) return;
+    
     if ([UIApplication sharedApplication].applicationState == UIApplicationStateActive) {
         // If we're the foreground application, then show an alert view as one would not have been
         // presented to the user via the notification center.
@@ -90,6 +93,18 @@
     }
     
     [[OHMReminderManager sharedReminderManager] processFiredLocalNotification:notification];
+}
+
+- (void)application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier
+forLocalNotification:(UILocalNotification *)notification completionHandler:(void (^)())completionHandler
+{
+    NSLog(@"%s, identifier: %@", __PRETTY_FUNCTION__, identifier);
+    if ([identifier isEqualToString:kNotificationActionIdentifierSubmitSurvey]) {
+        NSString *uuid = notification.userInfo[@"responseUUID"];
+        [[OHMModel sharedModel] submitSurveyResponseWithUUID:uuid];
+    }
+    
+    completionHandler();
 }
 
 /**
@@ -160,7 +175,10 @@
         self.window.rootViewController = newRoot;
         self.loginViewController = nil;
         [[OHMLocationManager sharedLocationManager] requestAuthorization];
+        
     }];
+    
+    [CrashlyticsKit setUserName:[OMHClient signedInUsername]];
 }
 
 - (void)userDidLogout
@@ -180,6 +198,8 @@
         self.window.rootViewController = newRoot;
         self.navigationController = nil;
     }];
+    
+    [CrashlyticsKit setUserName:nil];
 }
 
 

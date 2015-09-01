@@ -10,8 +10,29 @@
 #import "OHMReminder.h"
 #import "OHMLocationManager.h"
 #import "OHMReminderLocation.h"
+#import "OHMSurveyResponse.h"
 #import "OHMSurvey.h"
 #import "OHMUser.h"
+
+
+static NSString * const kHasRequestedNotificationPermissionKey =
+@"HAS_REQUESTED_NOTIFICATION_PERMISSION";
+
+NSString * const kNotificationActionIdentifierResumeSurvey =
+@"NOTIFICATION_ACTION_IDENTIFIER_RESUME_SURVEY";
+NSString * const kNotificationCategoryIdentifierResumeSurvey =
+@"NOTIFICATION_CATEGORY_IDENTIFIER_RESUME_SURVEY";
+NSString * const kNotificationActionIdentifierSubmitSurvey =
+@"NOTIFICATION_ACTION_IDENTIFIER_SUBMIT_SURVEY";
+NSString * const kNotificationCategoryIdentifierSubmitSurvey =
+@"NOTIFICATION_CATEGORY_IDENTIFIER_SUBMIT_SURVEY";
+
+static NSString * const kNotificationsVersionKey = @"NOTIFICATIONS_VERSION";
+static NSInteger const kNotificationsVersion = 1;
+
+@interface OHMReminderManager () <UIAlertViewDelegate>
+
+@end
 
 @implementation OHMReminderManager
 
@@ -26,6 +47,78 @@
     
     return _sharedReminderManager;
 }
+
++ (BOOL)hasNotificationPermissions
+{
+    if (![[UIApplication sharedApplication] respondsToSelector:@selector(currentUserNotificationSettings)]) {
+        return YES;
+    }
+    
+    NSInteger version = [[NSUserDefaults standardUserDefaults] integerForKey:kNotificationsVersionKey];
+    if (version != kNotificationsVersion) return false;
+    UIUserNotificationSettings *settings = [UIApplication sharedApplication].currentUserNotificationSettings;
+    //    NSLog(@"settings: %@", settings);
+    
+    return (settings.types & UIUserNotificationTypeAlert);
+}
+
++ (void)registerNotificationSettings
+{
+    if (![[UIApplication sharedApplication] respondsToSelector:@selector(currentUserNotificationSettings)]) {
+        return;
+    }
+    
+    NSSet *categories = [NSSet setWithObjects:[self resumeSurveyCategory], [self submitSurveyCategory], nil];
+    UIUserNotificationType types = UIUserNotificationTypeAlert | UIUserNotificationTypeSound;
+    
+    UIUserNotificationSettings *settings =
+    [UIUserNotificationSettings settingsForTypes:types categories:categories];
+    
+    [[UIApplication sharedApplication] registerUserNotificationSettings:settings];
+    
+    [[NSUserDefaults standardUserDefaults] setInteger:kNotificationsVersion forKey:kNotificationsVersionKey];
+}
+
+- (void)requestNotificationPermissions
+{
+    if (![[UIApplication sharedApplication] respondsToSelector:@selector(currentUserNotificationSettings)]) {
+        return;
+    }
+    
+    NSString *title;
+    NSString *message;
+    BOOL hasRequested = [[NSUserDefaults standardUserDefaults] boolForKey:kHasRequestedNotificationPermissionKey];
+    NSInteger version = [[NSUserDefaults standardUserDefaults] integerForKey:kNotificationsVersionKey];
+    
+    if (!hasRequested) {
+        title = @"Reminder Permissions";
+        message = @"To deliver reminders, Ohmage needs permission to display notifications. Please allow notifications for Ohmage.";
+        [[NSUserDefaults standardUserDefaults] setBool:YES forKey:kHasRequestedNotificationPermissionKey];
+    }
+    else if (version == kNotificationsVersion) {
+        title = @"Insufficient Permissions";
+        message = @"To deliver reminders, Ohmage needs permission to display notifications. Please enable notifications for Ohmage in your device settings.";
+        
+    }
+    else {
+        return;
+    }
+    
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:title
+                                                    message:message
+                                                   delegate:self
+                                          cancelButtonTitle:@"OK"
+                                          otherButtonTitles:nil];
+    [alert show];
+}
+
+- (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex
+{
+    NSLog(@"alert view did dismiss");
+    [[self class] registerNotificationSettings];
+}
+
+
 
 - (instancetype)init
 {
@@ -241,6 +334,54 @@
             [application cancelLocalNotification:notification];
         }
     }
+    [self cancelResumeSurveyNotifications];
+}
+
+
+- (UILocalNotification *)notificationWithTitle:(NSString *)title body:(NSString *)body fireDate:(NSDate *)fireDate category:(NSString *)category
+{
+    UILocalNotification *notification = [[UILocalNotification alloc] init];
+    notification.alertTitle = title;
+    notification.soundName = UILocalNotificationDefaultSoundName;
+    notification.alertBody = body;
+    notification.fireDate = fireDate;
+    notification.timeZone = [NSTimeZone defaultTimeZone];
+    if ([notification respondsToSelector:@selector(category)]) {
+        notification.category = category;
+        [notification performSelector:@selector(setCategory:) withObject:category];
+    }
+    
+    return notification;
+}
+
+- (void)scheduleResumeSurveyNotification:(OHMSurveyResponse *)response
+{
+    NSString *alertBody = [NSString stringWithFormat:@"You left your \"%@\" survey incomplete. Please resume progress.", response.survey.surveyName];
+    NSDate *fireDate = [[NSDate date] dateByAddingMinutes:5];
+    
+    UILocalNotification *notification = [self notificationWithTitle:@"Resume Survey" body:alertBody fireDate:fireDate category:kNotificationCategoryIdentifierResumeSurvey];
+    [[UIApplication sharedApplication] scheduleLocalNotification:notification];
+}
+
+- (void)cancelResumeSurveyNotifications
+{
+    UIApplication *application = [UIApplication sharedApplication];
+    NSArray *scheduledNotifications = [application scheduledLocalNotifications];
+    for (UILocalNotification *notification in scheduledNotifications) {
+        if ([notification.alertTitle isEqualToString:@"Resume Survey"]) {
+            [application cancelLocalNotification:notification];
+        }
+    }
+}
+
+- (void)presentSubmitSurveyNotification:(OHMSurveyResponse *)response
+{
+    NSString *alertBody = [NSString stringWithFormat:@"You left your \"%@\" survey without submitting it. Please submit it now.", response.survey.surveyName];
+    
+    UILocalNotification *notification = [self notificationWithTitle:@"Submit Survey" body:alertBody fireDate:nil category:kNotificationCategoryIdentifierSubmitSurvey];
+    notification.userInfo = @{@"responseUUID" : response.uuid};
+    
+    [[UIApplication sharedApplication] scheduleLocalNotification:notification];
 }
 
 - (void)debugPrintAllNotifications {
@@ -269,6 +410,70 @@
         }
     }
 #endif
+}
+
+#pragma mark - Actions
+
++ (UIUserNotificationAction *)resumeSurveyAction
+{
+    UIMutableUserNotificationAction *resumeAction =
+    [[UIMutableUserNotificationAction alloc] init];
+    
+    resumeAction.identifier = kNotificationActionIdentifierResumeSurvey;
+    resumeAction.title = @"Resume";
+    resumeAction.activationMode = UIUserNotificationActivationModeForeground;
+    resumeAction.destructive = NO;
+    resumeAction.authenticationRequired = NO;
+    
+    return resumeAction;
+}
+
++ (UIUserNotificationCategory *)resumeSurveyCategory
+{
+    UIMutableUserNotificationCategory *resumeCategory =
+    [[UIMutableUserNotificationCategory alloc] init];
+    resumeCategory.identifier = kNotificationCategoryIdentifierResumeSurvey;
+    
+    UIUserNotificationAction *resumeAction = [self resumeSurveyAction];
+    
+    [resumeCategory setActions:@[resumeAction]
+                    forContext:UIUserNotificationActionContextDefault];
+    
+    [resumeCategory setActions:@[resumeAction]
+                    forContext:UIUserNotificationActionContextMinimal];
+    
+    return resumeCategory;
+}
+
++ (UIUserNotificationAction *)submitSurveyAction
+{
+    UIMutableUserNotificationAction *action =
+    [[UIMutableUserNotificationAction alloc] init];
+    
+    action.identifier = kNotificationActionIdentifierSubmitSurvey;
+    action.title = @"Submit";
+    action.activationMode = UIUserNotificationActivationModeBackground;
+    action.destructive = NO;
+    action.authenticationRequired = NO;
+    
+    return action;
+}
+
++ (UIUserNotificationCategory *)submitSurveyCategory
+{
+    UIMutableUserNotificationCategory *category =
+    [[UIMutableUserNotificationCategory alloc] init];
+    category.identifier = kNotificationCategoryIdentifierSubmitSurvey;
+    
+    UIUserNotificationAction *action = [self submitSurveyAction];
+    
+    [category setActions:@[action]
+              forContext:UIUserNotificationActionContextDefault];
+    
+    [category setActions:@[action]
+              forContext:UIUserNotificationActionContextMinimal];
+    
+    return category;
 }
 
 @end

@@ -37,6 +37,7 @@
 
 - (void)clearUserData;
 - (void)submitSurveyResponse:(OHMSurveyResponse *)response;
+- (void)submitSurveyResponseWithUUID:(NSString *)uuid;
 
 // Model
 - (void)fetchSurveys;

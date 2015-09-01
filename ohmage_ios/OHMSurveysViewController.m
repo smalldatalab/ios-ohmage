@@ -15,6 +15,7 @@
 #import "OHMModel.h"
 #import "OHMSurvey.h"
 #import "OHMReminder.h"
+#import "OHMReminderManager.h"
 
 #import "OMHClient+Logging.h"
 
@@ -78,6 +79,15 @@
                                                                       NSForegroundColorAttributeName : [UIColor whiteColor],
                                                                       NSFontAttributeName : [UIFont boldSystemFontOfSize:22]}];
     self.navigationController.navigationBar.barTintColor = [OHMAppConstants ohmageColor];
+}
+
+- (void)viewDidAppear:(BOOL)animated
+{
+    [super viewDidAppear:animated];
+    
+    if (![OHMReminderManager hasNotificationPermissions]) {
+        [[OHMReminderManager sharedReminderManager] requestNotificationPermissions];
+    }
 }
 
 - (OHMModel *)model

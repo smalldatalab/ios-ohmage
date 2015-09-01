@@ -16,6 +16,8 @@
 #import "OHMUserInterface.h"
 #import "OHMSurveyPromptChoice.h"
 #import "OHMAudioRecorder.h"
+#import "OHMReminderManager.h"
+
 #import <AVFoundation/AVFoundation.h>
 #import <MobileCoreServices/MobileCoreServices.h>
 
@@ -67,7 +69,7 @@ UIImagePickerControllerDelegate, OHMAudioRecorderDelegate>
         self.promptResponse = self.surveyResponse.promptResponses[self.itemIndex];
         self.item = self.promptResponse.surveyItem;
         
-        [self registerForNotifications];
+//        [self registerForNotifications];
     }
     return self;
 }
@@ -150,11 +152,21 @@ UIImagePickerControllerDelegate, OHMAudioRecorderDelegate>
 
 - (void)viewDidAppear:(BOOL)animated
 {
+    NSLog(@"survey item view did appear");
     [super viewDidAppear:animated];
     
     // in case item originally failed condition
     // but this time passed condiction, clear notDisplayed flag
     self.promptResponse.notDisplayedValue = NO;
+    
+    [self registerForNotifications];
+}
+
+- (void)viewDidDisappear:(BOOL)animated
+{
+    NSLog(@"survey item view did disappear");
+    [super viewDidDisappear:animated];
+    [self unregisterForNotifications];
 }
 
 - (void)setupForModalPresentation
@@ -992,9 +1004,8 @@ UIImagePickerControllerDelegate, OHMAudioRecorderDelegate>
     return combDate;
 }
 
+
 #pragma mark - App Lifecycle
-
-
 
 - (void)registerForNotifications
 {
@@ -1014,6 +1025,7 @@ UIImagePickerControllerDelegate, OHMAudioRecorderDelegate>
                                    message:[NSString stringWithFormat:@"User left survey without submitting or discarding: %@ (ID: %@)",
                                             self.surveyResponse.survey.surveyName,
                                             self.surveyResponse.uuid]];
+    [[OHMReminderManager sharedReminderManager] scheduleResumeSurveyNotification:self.surveyResponse];
 }
 
 - (void)willEnterForeground
@@ -1022,6 +1034,7 @@ UIImagePickerControllerDelegate, OHMAudioRecorderDelegate>
                                    message:[NSString stringWithFormat:@"User resumed the survey: %@ (ID: %@)",
                                             self.surveyResponse.survey.surveyName,
                                             self.surveyResponse.uuid]];
+    [[OHMReminderManager sharedReminderManager] cancelResumeSurveyNotifications];
 }
 
 @end

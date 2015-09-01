@@ -8,11 +8,15 @@
 
 #import <Foundation/Foundation.h>
 
+extern NSString * const kNotificationActionIdentifierSubmitSurvey;
+
 @class OHMReminder;
 
 @interface OHMReminderManager : NSObject
 
 + (instancetype)sharedReminderManager;
++ (BOOL)hasNotificationPermissions;
+- (void)requestNotificationPermissions;
 
 - (void)updateScheduleForReminder:(OHMReminder *)reminder;
 - (void)processFiredLocalNotification:(UILocalNotification *)notification;
@@ -21,5 +25,9 @@
 - (void)scheduleNotificationForReminder:(OHMReminder *)reminder;
 - (void)unscheduleNotificationsForReminder:(OHMReminder *)reminder;
 - (void)cancelAllNotificationsForLoggedInUser;
+
+- (void)scheduleResumeSurveyNotification:(OHMSurveyResponse *)response;
+- (void)cancelResumeSurveyNotifications;
+- (void)presentSubmitSurveyNotification:(OHMSurveyResponse *)response;
 
 @end
