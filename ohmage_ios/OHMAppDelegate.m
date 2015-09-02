@@ -129,7 +129,7 @@ forLocalNotification:(UILocalNotification *)notification completionHandler:(void
 - (void)applicationDidBecomeActive:(UIApplication *)application
 {
     [[OHMReminderManager sharedReminderManager] synchronizeReminders];
-    [[OMHClient sharedClient] logInfoEvent:@"AppBecameActive" message:@"The application has become active."];
+//    [[OMHClient sharedClient] logInfoEvent:@"AppBecameActive" message:@"The application has become active."];
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application

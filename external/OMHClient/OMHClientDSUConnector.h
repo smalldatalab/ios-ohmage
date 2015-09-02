@@ -90,7 +90,7 @@ sourceApplication:(NSString *)sourceApplication
 
 @end
 
-@protocol OMHUploadDelegate
+@protocol OMHUploadDelegate<NSObject>
 - (void)OMHClient:(OMHClient *)client dataPointUploadBegan:(NSDictionary *)dataPoint;
 - (void)OMHClient:(OMHClient *)client dataPointUploadSucceeded:(NSDictionary *)dataPoint;
 - (void)OMHClient:(OMHClient *)client dataPointUploadFailed:(NSDictionary *)dataPoint;

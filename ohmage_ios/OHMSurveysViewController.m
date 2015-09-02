@@ -36,7 +36,16 @@
 
 - (instancetype)init
 {
-    return [super initWithStyle:UITableViewStyleGrouped];
+    self = [super initWithStyle:UITableViewStyleGrouped];
+    if (self) {
+        [self registerForNotifications];
+    }
+    return self;
+}
+
+- (void)dealloc
+{
+    [self unregisterForNotifications];
 }
 
 - (void)viewDidLoad
@@ -68,6 +77,8 @@
     self.navigationItem.rightBarButtonItem = helpButton;
     
     self.model.delegate = self;
+    
+    [self willEnterForeground];
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -294,6 +305,24 @@
 - (void)controllerDidChangeContent:(NSFetchedResultsController *)controller
 {
     [self.tableView reloadData];
+}
+
+#pragma mark - App Lifecycle
+
+- (void)registerForNotifications
+{
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(willEnterForeground) name:UIApplicationWillEnterForegroundNotification object:nil];
+}
+
+- (void)unregisterForNotifications
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillEnterForegroundNotification object:nil];
+}
+
+- (void)willEnterForeground
+{
+    [[OMHClient sharedClient] logInfoEvent:@"AppHomeResumed"
+                                   message:@"The main app home page has been resumed."];
 }
 
 @end

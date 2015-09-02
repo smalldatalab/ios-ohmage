@@ -118,7 +118,7 @@ static const NSInteger kSurveyResponsesSectionIndex = 1;
     
     [nameLabel centerHorizontallyInView:headerView];
     [descriptionLabel centerHorizontallyInView:headerView];
-    [versionLabel centerFrameHorizontallyInView:headerView];
+    [versionLabel centerHorizontallyInView:headerView];
     [promptCountLabel centerHorizontallyInView:headerView];
     [takeSurveyButton centerHorizontallyInView:headerView];
     

@@ -89,6 +89,9 @@
     
     UILabel *versionLabel = [OHMUserInterface headerDetailLabelWithText:versionText width:contentWidth];
     contentHeight += versionLabel.frame.size.height + kUIViewVerticalMargin;
+    if (!self.response.submissionConfirmedValue) {
+        versionLabel.font = [OHMAppConstants italicTextFont];
+    }
     
     UIView *headerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.tableView.frame.size.width, contentHeight)];
     
