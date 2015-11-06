@@ -32,7 +32,7 @@
     dataPoint.body = [self logBodyWithLevel:level event:event message:message];
     [self submitDataPoint:dataPoint];
     
-    NSLog(@"log data point: %@", dataPoint);
+//    NSLog(@"log data point: %@", dataPoint);
 }
 
 - (void)logInfoEvent:(NSString *)event message:(NSString *)message

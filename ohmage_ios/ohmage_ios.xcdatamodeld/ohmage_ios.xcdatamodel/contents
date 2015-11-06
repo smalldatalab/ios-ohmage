@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="7549" systemVersion="14D136" minimumToolsVersion="Xcode 4.3" macOSVersion="Automatic" iOSVersion="Automatic">
+<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="8195" systemVersion="14F27" minimumToolsVersion="Xcode 4.3">
     <entity name="OHMReminder" representedClassName="OHMReminder" syncable="YES">
         <attribute name="alwaysShow" optional="YES" attributeType="Boolean" defaultValueString="NO" syncable="YES"/>
         <attribute name="enabled" optional="YES" attributeType="Boolean" defaultValueString="NO" syncable="YES"/>
@@ -108,7 +108,7 @@
         <element name="OHMReminder" positionX="-54" positionY="-90" width="128" height="270"/>
         <element name="OHMReminderLocation" positionX="-54" positionY="-90" width="128" height="180"/>
         <element name="OHMSurvey" positionX="-135" positionY="-99" width="128" height="225"/>
-        <element name="OHMSurveyItem" positionX="-207" positionY="143" width="153" height="328"/>
+        <element name="OHMSurveyItem" positionX="-207" positionY="143" width="153" height="330"/>
         <element name="OHMSurveyPromptChoice" positionX="-54" positionY="-90" width="128" height="135"/>
         <element name="OHMSurveyPromptResponse" positionX="90" positionY="143" width="128" height="180"/>
         <element name="OHMSurveyResponse" positionX="70" positionY="9" width="128" height="210"/>

@@ -216,6 +216,7 @@
 		1E1B61081909B3F3001046E0 /* UIColor+Ohmage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIColor+Ohmage.m"; sourceTree = "<group>"; };
 		1E1B610A1909B736001046E0 /* OHMUserInterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OHMUserInterface.h; sourceTree = "<group>"; };
 		1E1B610B1909B736001046E0 /* OHMUserInterface.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OHMUserInterface.m; sourceTree = "<group>"; };
+		1E1F39A31BCC792E001CC5C5 /* ohmage_ios 2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "ohmage_ios 2.xcdatamodel"; sourceTree = "<group>"; };
 		1E2419CD1A570C80008A9F08 /* AFHTTPRequestOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFHTTPRequestOperation.h; sourceTree = "<group>"; };
 		1E2419CE1A570C80008A9F08 /* AFHTTPRequestOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFHTTPRequestOperation.m; sourceTree = "<group>"; };
 		1E2419CF1A570C80008A9F08 /* AFHTTPRequestOperationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFHTTPRequestOperationManager.h; sourceTree = "<group>"; };
@@ -775,7 +776,7 @@
 				ORGANIZATIONNAME = VPD;
 				TargetAttributes = {
 					1E70095F18CA6F8700203990 = {
-						DevelopmentTeam = 97CH99WN8D;
+						DevelopmentTeam = 62Q6KFJKEC;
 					};
 					1E70097A18CA6F8700203990 = {
 						TestTargetID = 1E70095F18CA6F8700203990;
@@ -879,7 +880,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "mogenerator --v2 --model ohmage_ios/ohmage_ios.xcdatamodeld/ohmage_ios.xcdatamodel -O ohmage_ios/Model --machine-dir ohmage_ios/Model/_Model";
+			shellScript = "mogenerator --v2 --model ohmage_ios/ohmage_ios.xcdatamodeld -O ohmage_ios/Model --machine-dir ohmage_ios/Model/_Model";
 		};
 		1E49E6441B0B591100FF3578 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -1104,8 +1105,9 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
-				CODE_SIGN_IDENTITY = "iPhone Developer: Deborah Estrin (9H7CB376U7)";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Deborah Estrin (9H7CB376U7)";
+				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/external",
@@ -1134,8 +1136,9 @@
 				);
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_BUNDLE_IDENTIFIER = "io.smalldatalab.ohmage-internal";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE = "d85d2094-d053-45fd-bd9c-00d47b2d3267";
 				SDKROOT = iphoneos8.3;
 				WRAPPER_EXTENSION = app;
 			};
@@ -1146,8 +1149,9 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
-				CODE_SIGN_IDENTITY = "iPhone Distribution: CORNELL University";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: CORNELL University";
+				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/external",
@@ -1170,6 +1174,7 @@
 					"$(PROJECT_DIR)/external",
 				);
 				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_BUNDLE_IDENTIFIER = "io.smalldatalab.ohmage-internal";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "d85d2094-d053-45fd-bd9c-00d47b2d3267";
 				SDKROOT = iphoneos8.3;
@@ -1262,9 +1267,10 @@
 		1EDA0B3318F5A4DD00C89F91 /* ohmage_ios.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
+				1E1F39A31BCC792E001CC5C5 /* ohmage_ios 2.xcdatamodel */,
 				1EDA0B3418F5A4DD00C89F91 /* ohmage_ios.xcdatamodel */,
 			);
-			currentVersion = 1EDA0B3418F5A4DD00C89F91 /* ohmage_ios.xcdatamodel */;
+			currentVersion = 1E1F39A31BCC792E001CC5C5 /* ohmage_ios 2.xcdatamodel */;
 			path = ohmage_ios.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;

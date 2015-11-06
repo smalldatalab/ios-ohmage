@@ -15,8 +15,10 @@ const struct OHMSurveyItemAttributes OHMSurveyItemAttributes = {
 	.maxChoices = @"maxChoices",
 	.maxDimension = @"maxDimension",
 	.maxDuration = @"maxDuration",
+	.maxLabel = @"maxLabel",
 	.min = @"min",
 	.minChoices = @"minChoices",
+	.minLabel = @"minLabel",
 	.skippable = @"skippable",
 	.text = @"text",
 	.wholeNumbersOnly = @"wholeNumbersOnly",
@@ -238,6 +240,8 @@ const struct OHMSurveyItemRelationships OHMSurveyItemRelationships = {
 	[self setPrimitiveMaxDuration:@(value_)];
 }
 
+@dynamic maxLabel;
+
 @dynamic min;
 
 - (double)minValue {
@@ -277,6 +281,8 @@ const struct OHMSurveyItemRelationships OHMSurveyItemRelationships = {
 - (void)setPrimitiveMinChoicesValue:(int16_t)value_ {
 	[self setPrimitiveMinChoices:@(value_)];
 }
+
+@dynamic minLabel;
 
 @dynamic skippable;
 

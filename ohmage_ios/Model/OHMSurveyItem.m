@@ -33,6 +33,8 @@
     self.skippable = [definition surveyItemIsSkippable];
     self.text = [definition surveyItemText];
     self.wholeNumbersOnly = [definition surveyItemWholeNumbersOnly];
+    self.minLabel = [definition surveyItemMinLabel];
+    self.maxLabel = [definition surveyItemMaxLabel];
     
     if (self.itemTypeValue == OHMSurveyItemTypeTextPrompt) {
         self.defaultStringResponse = [definition surveyItemDefaultStringResponse];

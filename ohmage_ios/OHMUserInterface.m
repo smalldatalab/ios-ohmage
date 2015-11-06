@@ -106,6 +106,16 @@
     return labelHeight + insets.top + insets.bottom + kUICellImageHeight + kUIViewSmallMargin;
 }
 
++ (CGFloat)heightForSliderCellWithText:(NSString *)text fromTableView:(UITableView *)tableView
+{
+    static CGFloat sliderHeight = 0;
+    if (sliderHeight == 0) {
+        UISlider *aSlider = [[UISlider alloc] init];
+        sliderHeight = aSlider.frame.size.height;
+    }
+    return 2 * kUIViewSmallMargin + sliderHeight + [self heightForSubtitleCellWithTitle:text subtitle:nil accessoryType:UITableViewCellAccessoryNone fromTableView:tableView];
+}
+
 + (UITableViewCell *)cellWithDefaultStyleFromTableView:(UITableView *)tableView
 {
     static NSString *sCellIdentifier = @"DefaultCell";
@@ -230,6 +240,35 @@
 + (UITableViewCell *)cellWithSegmentedControlFromTableView:(UITableView *)tableView setupBlock:(void (^)(UISegmentedControl *sc))scBlock
 {
     return nil;
+}
+
++ (UITableViewCell *)cellWithSliderFromTableView:(UITableView *)tableView setupBlock:(void (^)(UISlider *slider))sliderBlock
+{
+    static NSString *sCellIdentifier = @"SliderCell";
+    
+//    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:sCellIdentifier];
+//    if (cell == nil) {
+        UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:sCellIdentifier];
+        cell.selectionStyle = UITableViewCellSelectionStyleNone;
+        cell.textLabel.font = [OHMAppConstants cellTextFont];
+        cell.textLabel.adjustsFontSizeToFitWidth = YES;
+        cell.textLabel.minimumScaleFactor = 0.75;
+        cell.textLabel.numberOfLines = 0;
+        cell.textLabel.translatesAutoresizingMaskIntoConstraints = NO;
+        [cell.contentView constrainChildToDefaultHorizontalInsets:cell.textLabel];
+        
+        UISlider *slider = [[UISlider alloc] init];
+        [cell.contentView addSubview:slider];
+        [slider positionBelowElement:cell.textLabel margin:kUIViewSmallMargin];
+        [slider constrainToBottomInParentWithMargin:kUIViewSmallMargin];
+        [cell.contentView constrainChildToDefaultHorizontalInsets:slider];
+        
+        if (sliderBlock) {
+            sliderBlock(slider);
+        }
+//    }
+    
+    return cell;
 }
 
 + (UIView *)tableFooterViewWithButton:(NSString *)title fromTableView:(UITableView *)tableView setupBlock:(void (^)(UIButton *))buttonBlock

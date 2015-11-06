@@ -20,6 +20,7 @@ typedef enum {
     OHMSurveyItemTypeNumberMultiChoicePrompt,
     OHMSurveyItemTypeStringSingleChoicePrompt,
     OHMSurveyItemTypeStringMultiChoicePrompt,
+    OHMSurveyItemTypeVASPrompt,
     OHMSupportedSurveyItemTypeCount,
     
     OHMSurveyItemTypeRemoteActivityPrompt, // not supported on iOS

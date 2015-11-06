@@ -25,6 +25,7 @@
                                subtitle:(NSString *)subtitle
                           fromTableView:(UITableView *)tableView;
 + (CGFloat)heightForImageCellWithText:(NSString *)text fromTableView:(UITableView *)tableView;
++ (CGFloat)heightForSliderCellWithText:(NSString *)text fromTableView:(UITableView *)tableView;
 
 + (UIView *)tableFooterViewWithButton:(NSString *)title fromTableView:(UITableView *)tableView setupBlock:(void (^)(UIButton *))buttonBlock;
 + (UITableViewCell *)cellWithDefaultStyleFromTableView:(UITableView *)tableView;
@@ -34,6 +35,7 @@
 + (UITableViewCell *)cellWithSwitchFromTableView:(UITableView *)tableView setupBlock:(void (^)(UISwitch *sw))swBlock;
 + (UITableViewCell *)cellWithTimePickerFromTableView:(UITableView *)tableView setupBlock:(void (^)(UIDatePicker *dp))dpBlock;
 + (UITableViewCell *)cellWithSegmentedControlFromTableView:(UITableView *)tableView setupBlock:(void (^)(UISegmentedControl *sc))scBlock;
++ (UITableViewCell *)cellWithSliderFromTableView:(UITableView *)tableView setupBlock:(void (^)(UISlider *slider))sliderBlock;
 
 + (UILabel *)headerTitleLabelWithText:(NSString *)text width:(CGFloat)width;
 + (UILabel *)headerDescriptionLabelWithText:(NSString *)text width:(CGFloat)width;

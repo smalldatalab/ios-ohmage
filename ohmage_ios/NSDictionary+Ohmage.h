@@ -53,6 +53,8 @@
 - (NSNumber *)surveyItemMaxChoices;
 - (NSNumber *)surveyItemMaxDimension;
 - (NSNumber *)surveyItemMaxDuration;
+- (NSString *)surveyItemMinLabel;
+- (NSString *)surveyItemMaxLabel;
 - (NSArray *)surveyItemChoices;
 - (NSNumber *)surveyItemIsSkippable;
 - (NSNumber *)surveyItemWholeNumbersOnly;

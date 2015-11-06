@@ -15,8 +15,10 @@ extern const struct OHMSurveyItemAttributes {
 	__unsafe_unretained NSString *maxChoices;
 	__unsafe_unretained NSString *maxDimension;
 	__unsafe_unretained NSString *maxDuration;
+	__unsafe_unretained NSString *maxLabel;
 	__unsafe_unretained NSString *min;
 	__unsafe_unretained NSString *minChoices;
+	__unsafe_unretained NSString *minLabel;
 	__unsafe_unretained NSString *skippable;
 	__unsafe_unretained NSString *text;
 	__unsafe_unretained NSString *wholeNumbersOnly;
@@ -109,6 +111,10 @@ extern const struct OHMSurveyItemRelationships {
 
 //- (BOOL)validateMaxDuration:(id*)value_ error:(NSError**)error_;
 
+@property (nonatomic, strong) NSString* maxLabel;
+
+//- (BOOL)validateMaxLabel:(id*)value_ error:(NSError**)error_;
+
 @property (nonatomic, strong) NSNumber* min;
 
 @property (atomic) double minValue;
@@ -124,6 +130,10 @@ extern const struct OHMSurveyItemRelationships {
 - (void)setMinChoicesValue:(int16_t)value_;
 
 //- (BOOL)validateMinChoices:(id*)value_ error:(NSError**)error_;
+
+@property (nonatomic, strong) NSString* minLabel;
+
+//- (BOOL)validateMinLabel:(id*)value_ error:(NSError**)error_;
 
 @property (nonatomic, strong) NSNumber* skippable;
 
@@ -235,6 +245,9 @@ extern const struct OHMSurveyItemRelationships {
 - (int32_t)primitiveMaxDurationValue;
 - (void)setPrimitiveMaxDurationValue:(int32_t)value_;
 
+- (NSString*)primitiveMaxLabel;
+- (void)setPrimitiveMaxLabel:(NSString*)value;
+
 - (NSNumber*)primitiveMin;
 - (void)setPrimitiveMin:(NSNumber*)value;
 
@@ -246,6 +259,9 @@ extern const struct OHMSurveyItemRelationships {
 
 - (int16_t)primitiveMinChoicesValue;
 - (void)setPrimitiveMinChoicesValue:(int16_t)value_;
+
+- (NSString*)primitiveMinLabel;
+- (void)setPrimitiveMinLabel:(NSString*)value;
 
 - (NSNumber*)primitiveSkippable;
 - (void)setPrimitiveSkippable:(NSNumber*)value;

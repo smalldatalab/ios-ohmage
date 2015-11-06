@@ -48,6 +48,8 @@ UIImagePickerControllerDelegate, OHMAudioRecorderDelegate>
 @property (nonatomic, strong) UIDatePicker *datePicker;
 @property (nonatomic, strong) UIDatePicker *timePicker;
 
+@property (nonatomic, strong) UISlider *vasSlider;
+
 @property (nonatomic, strong) OHMAudioRecorder *audioRecorder;
 @property (nonatomic, strong) UIButton *recordAudioButton;
 @property (nonatomic, strong) UIButton *playAudioButton;
@@ -109,6 +111,10 @@ UIImagePickerControllerDelegate, OHMAudioRecorderDelegate>
     
     if ([self itemNeedsImageView]) {
         self.imageView.image = self.promptResponse.imageValue;
+    }
+    
+    if ([self itemNeedsVAS]) {
+        [self setupVAS];
     }
 }
 
@@ -189,6 +195,9 @@ UIImagePickerControllerDelegate, OHMAudioRecorderDelegate>
         case OHMSurveyItemTypeNumberMultiChoicePrompt:
             self.nextButton.enabled = [self validateChoices];
             break;
+        case OHMSurveyItemTypeVASPrompt:
+            self.nextButton.enabled = (self.promptResponse.numberValue != nil);
+            break;
         case OHMSurveyItemTypeNumberPrompt:
             if (self.numberPicker != nil) {
                 self.nextButton.enabled = YES;
@@ -265,6 +274,11 @@ UIImagePickerControllerDelegate, OHMAudioRecorderDelegate>
     else {
         return NO;
     }
+}
+
+- (BOOL)itemNeedsVAS
+{
+    return self.item.itemTypeValue == OHMSurveyItemTypeVASPrompt;
 }
 
 
@@ -469,6 +483,92 @@ UIImagePickerControllerDelegate, OHMAudioRecorderDelegate>
     }
     
     [self updateAudioButtonStates];
+}
+
+- (void)setupVAS
+{
+    UIColor *color = [OHMAppConstants colorForSurveyIndex:self.surveyResponse.survey.indexValue];
+    
+    UIView *left = [[UIView alloc] init];
+    UIView *right = [[UIView alloc] init];
+    left.backgroundColor = right.backgroundColor = color;
+    [self.view addSubview:left];
+    [self.view addSubview:right];
+    
+    UISlider *slider = [[UISlider alloc] init];
+    slider.maximumTrackTintColor = color;
+    slider.minimumTrackTintColor = color;
+    slider.minimumValue = 1;
+    slider.maximumValue = 100;
+    slider.continuous = NO;
+    if (self.promptResponse.numberValue != nil) {
+        slider.value = self.promptResponse.numberValueValue;
+    }
+    else {
+        slider.value = 49.5;
+    }
+    [slider addTarget:self action:@selector(vasSliderValueChanged) forControlEvents:UIControlEventValueChanged];
+    
+    
+    [self.view addSubview:slider];
+    [slider positionBelowElement:self.textLabel margin:20];
+    [self.view constrainChildToDefaultHorizontalInsets:slider];
+    
+    [self.view addConstraint: [NSLayoutConstraint constraintWithItem:slider
+                                                           attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual
+                                                              toItem:left attribute:NSLayoutAttributeHeight
+                                                          multiplier:1.0f constant:0.0f]];
+    
+    [self.view addConstraint: [NSLayoutConstraint constraintWithItem:slider
+                                                           attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual
+                                                              toItem:right attribute:NSLayoutAttributeHeight
+                                                          multiplier:1.0f constant:0.0f]];
+    
+    [self.view addConstraint: [NSLayoutConstraint constraintWithItem:slider
+                                                           attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual
+                                                              toItem:left attribute:NSLayoutAttributeCenterY
+                                                          multiplier:1.0f constant:0.0f]];
+    
+    [self.view addConstraint: [NSLayoutConstraint constraintWithItem:slider
+                                                           attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual
+                                                              toItem:right attribute:NSLayoutAttributeCenterY
+                                                          multiplier:1.0f constant:0.0f]];
+    
+    [self.view addConstraint: [NSLayoutConstraint constraintWithItem:slider
+                                                           attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual
+                                                              toItem:left attribute:NSLayoutAttributeLeft
+                                                          multiplier:1.0f constant:0.0f]];
+    
+    [self.view addConstraint: [NSLayoutConstraint constraintWithItem:slider
+                                                           attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual
+                                                              toItem:right attribute:NSLayoutAttributeRight
+                                                          multiplier:1.0f constant:0.0f]];
+    
+    [left constrainWidth:2.0];
+    [right constrainWidth:2.0];
+    
+    UILabel *minLabel = [[UILabel alloc] init];
+    minLabel.numberOfLines = 0;
+    minLabel.textAlignment = NSTextAlignmentLeft;
+    minLabel.text = self.item.minLabel;
+    
+    UILabel *maxLabel = [[UILabel alloc] init];
+    maxLabel.numberOfLines = 0;
+    maxLabel.textAlignment = NSTextAlignmentRight;
+    maxLabel.text = self.item.maxLabel;
+    
+    [self.view addSubview:minLabel];
+    [self.view addSubview:maxLabel];
+    
+    [minLabel positionBelowElement:slider margin:5];
+    [maxLabel positionBelowElement:slider margin:5];
+    
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-[minLabel]-30-[maxLabel]-|" options:0 metrics:nil views:NSDictionaryOfVariableBindings(minLabel, maxLabel)]];
+    
+    [self.view constrainChildrenToEqualWidths:@[minLabel, maxLabel]];
+    
+    
+    self.vasSlider = slider;
 }
 
 
@@ -1004,6 +1104,14 @@ UIImagePickerControllerDelegate, OHMAudioRecorderDelegate>
     return combDate;
 }
 
+#pragma mark - VAS
+
+- (void)vasSliderValueChanged
+{
+    NSLog(@"vas changed: %f", self.vasSlider.value);
+    self.promptResponse.numberValue = @((int)self.vasSlider.value);
+    self.nextButton.enabled = YES;
+}
 
 #pragma mark - App Lifecycle
 

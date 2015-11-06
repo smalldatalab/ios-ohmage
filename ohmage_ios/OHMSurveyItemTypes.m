@@ -26,6 +26,7 @@
                                 @"number_multi_choice_prompt" : @(OHMSurveyItemTypeNumberMultiChoicePrompt),
                                 @"string_single_choice_prompt" : @(OHMSurveyItemTypeStringSingleChoicePrompt),
                                 @"string_multi_choice_prompt" : @(OHMSurveyItemTypeStringMultiChoicePrompt),
+                                @"vas_prompt" : @(OHMSurveyItemTypeVASPrompt),
                                 @"remote_activity_prompt" : @(OHMSurveyItemTypeRemoteActivityPrompt) };
     }
     

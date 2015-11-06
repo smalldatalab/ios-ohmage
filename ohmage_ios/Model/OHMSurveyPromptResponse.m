@@ -242,6 +242,7 @@
     else {
         switch (self.surveyItem.itemTypeValue) {
             case OHMSurveyItemTypeNumberPrompt:
+            case OHMSurveyItemTypeVASPrompt:
                 return self.numberValue;
             case OHMSurveyItemTypeTextPrompt:
                 return self.stringValue;

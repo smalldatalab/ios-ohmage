@@ -230,6 +230,16 @@
     return [self nonNullValueForKey:@"max_duration"];
 }
 
+- (NSString *)surveyItemMinLabel
+{
+    return [self nonNullValueForKey:@"min_label"];
+}
+
+- (NSString *)surveyItemMaxLabel
+{
+    return [self nonNullValueForKey:@"max_label"];
+}
+
 - (NSArray *)surveyItemChoices
 {
     return [self nonNullValueForKey:@"choices"];

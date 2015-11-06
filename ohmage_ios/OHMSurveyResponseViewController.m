@@ -187,14 +187,28 @@
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     UITableViewCell *cell = nil;
+    UIColor *color = [OHMAppConstants colorForSurveyIndex:self.response.survey.indexValue];
     
     OHMSurveyPromptResponse *promptResponse = self.response.displayedPromptResponses[indexPath.row];
     NSString *promptText = promptResponse.surveyItem.text;
+    
+    NSLog(@"item type: %d", promptResponse.surveyItem.itemTypeValue);
     
     if (!promptResponse.skippedValue &&
         (promptResponse.surveyItem.itemTypeValue == OHMSurveyItemTypeImagePrompt ||
          promptResponse.surveyItem.itemTypeValue == OHMSurveyItemTypeVideoPrompt) ) {
         cell = [OHMUserInterface cellWithImage:promptResponse.imageValue text:promptText fromTableView:tableView];
+    }
+    else if (!promptResponse.skippedValue && (promptResponse.surveyItem.itemTypeValue == OHMSurveyItemTypeVASPrompt)) {
+        cell = [OHMUserInterface cellWithSliderFromTableView:tableView setupBlock:^(UISlider *slider) {
+            slider.maximumTrackTintColor = color;
+            slider.minimumTrackTintColor = color;
+            slider.minimumValue = 1;
+            slider.maximumValue = 100;
+            slider.value = promptResponse.numberValueValue;
+            slider.enabled = NO;
+        }];
+        cell.textLabel.text = promptText;
     }
     else {
         cell = [OHMUserInterface cellWithSubtitleStyleFromTableView:tableView];
@@ -202,7 +216,7 @@
     }
     
     cell.detailTextLabel.text = [self detailTextForPromptResponse:promptResponse];
-    cell.detailTextLabel.textColor = [OHMAppConstants colorForSurveyIndex:self.response.survey.indexValue];
+    cell.detailTextLabel.textColor = color;
     
     return cell;
 }
@@ -216,6 +230,9 @@
         (promptResponse.surveyItem.itemTypeValue == OHMSurveyItemTypeImagePrompt ||
          promptResponse.surveyItem.itemTypeValue == OHMSurveyItemTypeVideoPrompt) ) {
         return [OHMUserInterface heightForImageCellWithText:promptText fromTableView:tableView];
+    }
+    else if (!promptResponse.skippedValue && (promptResponse.surveyItem.itemTypeValue == OHMSurveyItemTypeVASPrompt)) {
+        return [OHMUserInterface heightForSliderCellWithText:promptText fromTableView:tableView];
     }
     else {
         return [OHMUserInterface heightForSubtitleCellWithTitle:promptText

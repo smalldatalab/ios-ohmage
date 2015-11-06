@@ -539,7 +539,9 @@ static NSString * const kResponseErrorStringKey = @"ResponseErrorString";
     if (_persistentStoreCoordinator == nil) {
         NSError *error = nil;
         _persistentStoreCoordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:[self managedObjectModel]];
-        if (![_persistentStoreCoordinator addPersistentStoreWithType:NSSQLiteStoreType configuration:nil URL:self.persistentStoreURL options:nil error:&error]) {
+        NSDictionary *options = @{NSMigratePersistentStoresAutomaticallyOption:@YES,
+                                  NSInferMappingModelAutomaticallyOption : @YES};
+        if (![_persistentStoreCoordinator addPersistentStoreWithType:NSSQLiteStoreType configuration:nil URL:self.persistentStoreURL options:options error:&error]) {
             // Replace this implementation with code to handle the error appropriately.
             NSLog(@"Error opening persistant store, resetting client\n%@\n%@", error, [error userInfo]);
             [self resetClient];
