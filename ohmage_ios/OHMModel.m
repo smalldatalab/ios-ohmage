@@ -1035,41 +1035,51 @@ static NSString * const kResponseErrorStringKey = @"ResponseErrorString";
 
 - (void)OMHClient:(OMHClient *)client dataPointUploadBegan:(NSDictionary *)dataPoint
 {
-    OHMSurveyResponse *response = [self surveyResponseForDataPoint:dataPoint];
-    if (response) {
-        NSLog(@"survey upload began: %@", response);
-        [client logInfoEvent:@"SurveyUploadBegan"
-                      message:[NSString stringWithFormat:@"Upload began for survey: %@ (ID: %@)",
-                               response.survey.surveyName,
-                               response.uuid]];
-    }
+    __block NSDictionary *blockDataPoint = dataPoint;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        OHMSurveyResponse *response = [self surveyResponseForDataPoint:blockDataPoint];
+        if (response) {
+            NSLog(@"survey upload began: %@", response);
+            [client logInfoEvent:@"SurveyUploadBegan"
+                         message:[NSString stringWithFormat:@"Upload began for survey: %@ (ID: %@)",
+                                  response.survey.surveyName,
+                                  response.uuid]];
+        }
+    });
 }
 
 - (void)OMHClient:(OMHClient *)client dataPointUploadSucceeded:(NSDictionary *)dataPoint
 {
-    OHMSurveyResponse *response = [self surveyResponseForDataPoint:dataPoint];
-    if (response) {
-        response.submissionConfirmed = @(YES);
-        [self saveManagedContext];
-        NSLog(@"survey submission confirmed: %@", response);
-        
-        [client logInfoEvent:@"SurveyUploadSucceeded"
-                     message:[NSString stringWithFormat:@"Upload succeeded for survey: %@ (ID: %@)",
-                              response.survey.surveyName,
-                              response.uuid]];
-    }
+    __block NSDictionary *blockDataPoint = dataPoint;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        OHMSurveyResponse *response = [self surveyResponseForDataPoint:blockDataPoint];
+        if (response) {
+            response.submissionConfirmed = @(YES);
+            [self saveManagedContext];
+            NSLog(@"survey submission confirmed: %@", response);
+            
+            [client logInfoEvent:@"SurveyUploadSucceeded"
+                         message:[NSString stringWithFormat:@"Upload succeeded for survey: %@ (ID: %@)",
+                                  response.survey.surveyName,
+                                  response.uuid]];
+        }
+    });
 }
 
 - (void)OMHClient:(OMHClient *)client dataPointUploadFailed:(NSDictionary *)dataPoint
 {
-    OHMSurveyResponse *response = [self surveyResponseForDataPoint:dataPoint];
-    if (response) {
-        NSLog(@"survey upload failed: %@", response);
-        [client logErrorEvent:@"SurveyUploadFailed"
-                      message:[NSString stringWithFormat:@"Upload failed for survey: %@ (ID: %@)",
-                               response.survey.surveyName,
-                               response.uuid]];
-    }
+    __block NSDictionary *blockDataPoint = dataPoint;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        OHMSurveyResponse *response = [self surveyResponseForDataPoint:blockDataPoint];
+        if (response) {
+            NSLog(@"survey upload failed: %@", response);
+            [client logErrorEvent:@"SurveyUploadFailed"
+                          message:[NSString stringWithFormat:@"Upload failed for survey: %@ (ID: %@)",
+                                   response.survey.surveyName,
+                                   response.uuid]];
+        }
+    });
+
 }
 
 - (OHMSurveyResponse *)surveyResponseForDataPoint:(NSDictionary *)dataPoint
