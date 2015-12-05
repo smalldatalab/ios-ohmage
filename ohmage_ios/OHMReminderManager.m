@@ -312,7 +312,7 @@ static NSInteger const kNotificationsVersion = 1;
             reminder.lastFireDate = reminder.nextFireDate;
             [self processFiredReminder:reminder];
         }
-        else {
+        else if (reminder.enabledValue) {
             [self scheduleNotificationForReminder:reminder];
         }
     }
