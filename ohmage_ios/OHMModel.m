@@ -74,11 +74,12 @@ static NSString * const kResponseErrorStringKey = @"ResponseErrorString";
     if (self) {
         // fetch logged-in user
         NSString *userEmail = [self persistentStoreMetadataTextForKey:@"loggedInUserEmail"];
-        NSLog(@"client setup with userEmail: %@", userEmail);
+        NSLog(@"mode setup with userEmail: %@", userEmail);
         if (userEmail != nil) {
             self.user = [self userWithEmail:userEmail];
         }
         [OMHClient sharedClient].uploadDelegate = self;
+        [self submitPendingSurveyResponses];
     }
     return self;
 }
@@ -223,6 +224,15 @@ static NSString * const kResponseErrorStringKey = @"ResponseErrorString";
     surveyResponse.locTimestamp = location.timestamp;
     
     [[OMHClient sharedClient] submitDataPoint:surveyResponse.dataPoint withMediaAttachments:surveyResponse.mediaAttachments];
+}
+
+- (void)submitPendingSurveyResponses {
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"(userSubmitted == YES) && ( (submissionConfirmed == NO) || (submissionConfirmed == nil) )"];
+    NSArray *pending = [self fetchManagedObjectsWithEntityName:@"OHMSurveyResponse" predicate:predicate sortDescriptors:nil fetchLimit:0];
+    NSLog(@"submit pending survey responses, count: %d", (int)pending.count);
+    for (OHMSurveyResponse *response in pending) {
+        [self submitSurveyResponse:response];
+    }
 }
 
 #pragma mark - User (Private)
