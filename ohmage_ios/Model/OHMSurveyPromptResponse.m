@@ -129,6 +129,7 @@
 
 - (NSString *)mediaAttachmentName
 {
+    if (self.mediaAttachment == nil) return nil;
     return [[self mediaAttachmentURL] lastPathComponent];
 }
 

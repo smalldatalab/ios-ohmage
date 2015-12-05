@@ -1078,12 +1078,19 @@ static NSString * const kResponseErrorStringKey = @"ResponseErrorString";
                                    response.survey.surveyName,
                                    response.uuid]];
         }
+        else {
+            NSLog(@"survey upload failed, can't find response for data point: %@", dataPoint);
+        }
+        [client submitDataPoint:response.dataPoint withMediaAttachments:response.mediaAttachments];
     });
 
 }
 
 - (OHMSurveyResponse *)surveyResponseForDataPoint:(NSDictionary *)dataPoint
 {
+    if ( ((OMHRichMediaDataPoint *)dataPoint).dataPoint != nil) {
+        dataPoint = ((OMHRichMediaDataPoint *)dataPoint).dataPoint;
+    }
     NSString *uuid = ((OMHDataPoint *)dataPoint).header.headerID;
     if (uuid == nil) return nil;
     return (OHMSurveyResponse *)[self fetchObjectForEntityName:[OHMSurveyResponse entityName] withUUID:uuid create:NO];

@@ -140,6 +140,7 @@ static GPPSignIn *_gppSignIn = nil;
     if (self) {
         
         self.pendingDataPoints = [NSMutableArray array];
+        self.pendingRichMediaDataPoints = [NSMutableArray array];
         [self commonInit];
     }
     return self;
@@ -154,10 +155,10 @@ static GPPSignIn *_gppSignIn = nil;
         _dsuRefreshToken = [decoder decodeObjectForKey:@"client.dsuRefreshToken"];
         _pendingDataPoints = [decoder decodeObjectForKey:@"client.pendingDataPoints"];
         _pendingRichMediaDataPoints = [decoder decodeObjectForKey:@"client.pendingRichMediaDataPoints"];
-        if (_pendingRichMediaDataPoints == nil) _pendingRichMediaDataPoints = [NSMutableArray array];
         _accessTokenDate = [decoder decodeObjectForKey:@"client.accessTokenDate"];
         _accessTokenValidDuration = [decoder decodeDoubleForKey:@"client.accessTokenValidDuration"];
         _allowsCellularAccess = [decoder decodeBoolForKey:@"client.allowsCellularAccess"];
+        OMHLog(@"init with pending rich media: %d", (int)_pendingRichMediaDataPoints.count);
         [self commonInit];
     }
     
@@ -194,6 +195,7 @@ static GPPSignIn *_gppSignIn = nil;
 
 - (void)deferredSave
 {
+    NSLog(@"deferredSave");
     [self.saveTimer invalidate];
     self.saveTimer = nil;
     
@@ -212,9 +214,11 @@ static GPPSignIn *_gppSignIn = nil;
 - (void)saveClientState
 {
     OMHLog(@"saving client state, pending: %d, timer: %d", (int)self.pendingDataPoints.count, self.saveTimer != nil);
-    if (self.saveTimer == nil) {
-        self.saveTimer = [NSTimer scheduledTimerWithTimeInterval:10 target:self selector:@selector(deferredSave) userInfo:nil repeats:NO];
-    }
+    [self.saveTimer invalidate];
+    self.saveTimer = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(deferredSave) userInfo:nil repeats:NO];
+//    if (self.saveTimer == nil) {
+//        self.saveTimer = [NSTimer scheduledTimerWithTimeInterval:10 target:self selector:@selector(deferredSave) userInfo:nil repeats:NO];
+//    }
 }
 
 - (NSString *)encodedClientIDAndSecret
@@ -624,18 +628,23 @@ static GPPSignIn *_gppSignIn = nil;
     NSError *requestError = nil;
     NSString *requestString = [[OMHClient DSUBaseURL] stringByAppendingPathComponent:[self dataPointsRequestString]];
     
+    __block BOOL success = NO;
     NSMutableURLRequest *request =
     [self.backgroundSessionManager.requestSerializer multipartFormRequestWithMethod:@"POST"
                                                  URLString:requestString
                                                 parameters:nil
                                  constructingBodyWithBlock:^(id<AFMultipartFormData> formData)
      {
-         [self buildResponseBodyForRichMediaDataPoint:rmdp formData:formData];
+         success = [self buildResponseBodyForRichMediaDataPoint:rmdp formData:formData];
      }
                                                      error:&requestError];
     
-    if (requestError != nil) {
+    if (!success || (requestError != nil) ) {
         OMHLog(@"Failed to create upload request for rich media data point: %@", rmdp);
+        @synchronized(self.pendingRichMediaDataPoints) {
+            [self.pendingRichMediaDataPoints removeObject:rmdp];
+        }
+        [self.uploadDelegate OMHClient:self dataPointUploadFailed:rmdp];
         return;
     }
     
@@ -650,7 +659,7 @@ static GPPSignIn *_gppSignIn = nil;
                }];
 }
 
-- (void)buildResponseBodyForRichMediaDataPoint:(OMHRichMediaDataPoint *)rmdp
+- (BOOL)buildResponseBodyForRichMediaDataPoint:(OMHRichMediaDataPoint *)rmdp
                                       formData:(id<AFMultipartFormData>)formData
 {
     NSDictionary *dataHeaders = @{@"Content-Disposition" :@"form-data; name=\"data\"",
@@ -671,8 +680,10 @@ static GPPSignIn *_gppSignIn = nil;
                                   error:&error];
         if (error != nil) {
             OMHLog(@"Error appending form part for media attachment: %@, error: %@", mediaAttachment, error);
+            return NO;
         }
     }
+    return YES;
 }
 
 - (void)submitUploadRequest:(NSMutableURLRequest *)request forRichMediaDataPoint:(OMHRichMediaDataPoint *)rmdp

@@ -209,6 +209,9 @@ UIImagePickerControllerDelegate, OHMAudioRecorderDelegate>
         case OHMSurveyItemTypeTextPrompt:
             self.nextButton.enabled = [self validateTextField];
             break;
+        case OHMSurveyItemTypeImagePrompt:
+            self.nextButton.enabled = (self.promptResponse.imageValue != nil);
+            break;
         case OHMSurveyItemTypeMessage:
         default:
             self.nextButton.enabled = YES;
@@ -970,6 +973,7 @@ UIImagePickerControllerDelegate, OHMAudioRecorderDelegate>
         }
     }
     
+    [self updateNextButtonEnabledState];
     [self dismissViewControllerAnimated:YES completion:nil];
 }
 
