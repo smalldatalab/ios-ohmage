@@ -198,7 +198,7 @@
     NSInteger nextDayCalUnit = [OHMReminder calendarUnitForRepeatDay:nextDay];
     
     NSInteger interval = nextDayCalUnit - now.weekdayComponent;
-    if (interval < 0) interval += 7;
+    if (interval <= 0) interval += 7;
     
     return interval;
 }
